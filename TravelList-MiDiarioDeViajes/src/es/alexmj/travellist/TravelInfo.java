@@ -14,7 +14,6 @@ public class TravelInfo {
 	public static final String EXTRA_COUNTRY = "extra_country";
 	public static final String EXTRA_YEAR = "extra_year";
 	public static final String EXTRA_NOTE = "extra_note";
-
 	private String city;
 	private String country;
 	private int year;
