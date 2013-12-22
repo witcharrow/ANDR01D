@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+
+    <item
+        android:title="@string/op1Compartir"
+        android:id="@+id/CtxLblOpc1">
+    </item>
+    
+    <item
+        android:title="@string/op2Editar"
+        android:id="@+id/CtxLblOpc2">
+    </item>
+    
+    <item
+        android:title="@string/op3Borrar"
+        android:id="@+id/CtxLblOpc3">
+    </item>
+
+</menu>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">Mi Diario de Viajes</string>
+    <string name="title_activity_travel_list">TravelList</string>
+    <string name="title_activity_edit_travel">Editor de Viajes</string>
+    <string name="title_activity_travel">Visor de Viajes</string>
+            
+    <string name="menu_new_travel">Nuevo Viaje</string>
+    <string name="menu_share_travel">Compartir Viaje</string>
+    <string name="menu_delete_travel">Borrar Viaje</string>
+    <string name="send_to">Enviar a amiguete&#8230;</string>
+    
+	<string name="year">Año</string>
+    <string name="city">Ciudad</string>
+	<string name="country">Pais</string>    
+    <string name="note">Nota (Opcional)</string>
+    <string name="visita">Guardar Viaje</string>    
+    <string name="errorInput">Faltan datos por introducir</string>
+    
+	<string name="yearResult">2010</string>
+    <string name="cityResult">Burgos</string>
+    <string name="separador"> - </string>
+	<string name="countryResult">España</string>    
+    <string name="noteResult">Burgos es una ciudad española situada en el norte de la Península Ibérica, 
+        capital de la provincia homónima integrada en la comunidad autónoma de Castilla y León. Cuenta con
+        una población de 179.906 habitantes segón los datos demográficos de 2012, repartidos en una superficie
+        de 107,06 km2, convirtiéndose en la 36ª ciudad más poblada de España, y la segunda de la comunidad.
+    </string>
+    
+    <string name="HeadMessaje">Lista de Viajes Guardados:</string>
+    <string name="menuContx">Elija acción&#8230;</string>
+    <string name="emptyNote">(Sin notas)</string>
+    <string name="op1Compartir">Compartir Viaje</string>
+    <string name="op2Editar">Editar Viaje</string>
+    <string name="op3Borrar">Borrar Viaje</string>
+    
+</resources>

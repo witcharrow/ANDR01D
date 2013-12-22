@@ -1,0 +1,60 @@
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin"
+    tools:context=".EditTravelActivity"
+    android:background="@drawable/beach"  >
+
+    <EditText
+        android:id="@+id/pick_year"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentTop="true"
+        android:layout_toLeftOf="@+id/boton_visita"
+        android:ems="10"
+        android:hint="@string/year"
+        android:inputType="date" />
+
+    <EditText
+        android:id="@+id/city"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/pick_year"
+        android:layout_below="@+id/pick_year"
+        android:ems="10"
+        android:hint="@string/city"/>
+    
+    <EditText
+        android:id="@+id/country"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/city"
+        android:layout_below="@+id/city"
+        android:ems="10"
+        android:hint="@string/country" />
+
+    <EditText
+        android:id="@+id/note"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignLeft="@+id/country"
+        android:layout_alignParentRight="true"
+        android:layout_below="@+id/country"
+        android:ems="10"
+        android:hint="@string/note" />
+
+	<Button
+	    android:id="@+id/boton_visita"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_below="@+id/note"
+	    android:layout_centerHorizontal="true"
+	    android:text="@string/visita"
+	    tools:context=".EditTravelActivity" />
+
+</RelativeLayout>

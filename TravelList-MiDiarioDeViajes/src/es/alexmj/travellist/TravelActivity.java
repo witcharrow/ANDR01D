@@ -1,0 +1,123 @@
+package es.alexmj.travellist;
+
+import android.app.Activity;
+import android.content.Intent;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.TextView;
+import android.widget.Toast;
+
+/*
+ * VERSION 1: TravelActivity vacia a modo de ejemplo.
+ * Sustituye esta clase por la clase TravelActivity que creaste para el ejercicio de la unidad 2.
+ * 
+ * VERSION 2: incluye ahora funcionalidad para pasar realizar operaciones CRUD con cada viaje.
+ */
+public class TravelActivity extends Activity {
+
+	private static final String TAG = "TravelActivity: --->";
+	private static Integer BUNDLE_YEAR = 1970;
+	private static String BUNDLE_CITY = "city";
+	private static String BUNDLE_COUNTRY = "country";
+	private static String BUNDLE_NOTE = "note";
+	private TextView mCity;
+	private TextView mCountry;
+	private TextView mYear;
+	private TextView mNote;
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onCreate(android.os.Bundle)
+	 */
+	@Override
+	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+		Log.i(TAG, "onCreate");
+		setContentView(R.layout.activity_travel);
+
+		Intent intent = getIntent();
+		BUNDLE_CITY = intent.getExtras().getString(TravelInfo.EXTRA_CITY);
+		BUNDLE_COUNTRY = intent.getExtras().getString(TravelInfo.EXTRA_COUNTRY);
+		BUNDLE_YEAR = intent.getExtras().getInt(TravelInfo.EXTRA_YEAR);
+		BUNDLE_NOTE = intent.getExtras().getString(TravelInfo.EXTRA_NOTE);
+		// ##Toast.makeText(this, "TravelActivity: " +
+		// city+","+country+",("+year+"),"+ note , Toast.LENGTH_LONG).show();
+
+		mCity = (TextView) findViewById(R.id.cityResult);
+		mCity.setText(BUNDLE_CITY);
+		mCountry = (TextView) findViewById(R.id.countryResult);
+		mCountry.setText(BUNDLE_COUNTRY);
+		mYear = (TextView) findViewById(R.id.yearResult);
+		mYear.setText(BUNDLE_YEAR.toString());
+		mNote = (TextView) findViewById(R.id.noteResult);
+		mNote.setText(BUNDLE_NOTE);
+	}// onCreate()
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
+	 */
+	@Override
+	protected void onSaveInstanceState(Bundle outState) {
+		Log.i(TAG, "onSaveInstanceState");
+		// Guardamos el estado
+		String anno = mYear.getText().toString();
+		String ciudad = mCity.getText().toString();
+		String pais = mCountry.getText().toString();
+		String nota = mNote.getText().toString();
+
+		outState.putString(BUNDLE_YEAR.toString(), anno);
+		outState.putString(BUNDLE_CITY, ciudad);
+		outState.putString(BUNDLE_COUNTRY, pais);
+		outState.putString(BUNDLE_NOTE, nota);
+
+		super.onSaveInstanceState(outState);
+	}// onSaveInstanceState()
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+	 */
+	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		Log.i(TAG, "onCreateOptionsMenu");
+		getMenuInflater().inflate(R.menu.travel_menu, menu);
+		return true;
+	}// onCreateOptionsMenu()
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see android.app.Activity#onMenuItemSelected(int, android.view.MenuItem)
+	 */
+	@Override
+	public boolean onMenuItemSelected(int featureId, MenuItem item) {
+		Log.i(TAG, "onMenuItemSelected");
+		switch (item.getItemId()) {
+		case R.id.menu_share_travel:
+			// Creamos el Intent para lanzar la Activity que permita compartir
+			// el viaje
+			Intent sendIntent = new Intent();
+			sendIntent.setAction(Intent.ACTION_SEND);
+			sendIntent.putExtra(Intent.EXTRA_TEXT, BUNDLE_CITY + "("
+					+ BUNDLE_COUNTRY + ")\n" + "Año: " + BUNDLE_YEAR + "\n"
+					+ "Nota: " + BUNDLE_NOTE);
+			sendIntent.setType("text/plain");
+			startActivity(Intent.createChooser(sendIntent, getResources()
+					.getText(R.string.send_to)));
+			break;
+
+		default:
+			Toast.makeText(this, "Invalid option", Toast.LENGTH_LONG).show();
+			break;
+		}
+
+		return super.onMenuItemSelected(featureId, item);
+	}// onMenuItemSelected()
+
+}
