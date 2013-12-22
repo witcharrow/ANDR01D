@@ -9,11 +9,13 @@ import android.view.MenuItem;
 import android.widget.TextView;
 import android.widget.Toast;
 
-/*
+/**
  * VERSION 1: TravelActivity vacia a modo de ejemplo.
  * Sustituye esta clase por la clase TravelActivity que creaste para el ejercicio de la unidad 2.
  * 
  * VERSION 2: incluye ahora funcionalidad para pasar realizar operaciones CRUD con cada viaje.
+ * @author Alejandro.Marijuan@googlemail.com
+ *
  */
 public class TravelActivity extends Activity {
 
@@ -27,15 +29,15 @@ public class TravelActivity extends Activity {
 	private TextView mYear;
 	private TextView mNote;
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * Recoge y establece los datos de ciudad, pais, anio y nota,
+	 * que proceden del Intent.
 	 * @see android.app.Activity#onCreate(android.os.Bundle)
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		Log.i(TAG, "onCreate");
+		Log.d(TAG, "onCreate");
 		setContentView(R.layout.activity_travel);
 
 		Intent intent = getIntent();
@@ -56,15 +58,15 @@ public class TravelActivity extends Activity {
 		mNote.setText(BUNDLE_NOTE);
 	}// onCreate()
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * Guarda el estado de la Activity, con los datos del viaje,
+	 *  a saber: Anio, ciudad, pais y nota.
 	 * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
 	 */
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
-		Log.i(TAG, "onSaveInstanceState");
-		// Guardamos el estado
+		Log.d(TAG, "onSaveInstanceState");
+		//## Guardamos el estado
 		String anno = mYear.getText().toString();
 		String ciudad = mCity.getText().toString();
 		String pais = mCountry.getText().toString();
@@ -78,30 +80,28 @@ public class TravelActivity extends Activity {
 		super.onSaveInstanceState(outState);
 	}// onSaveInstanceState()
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * Crea el menu de opciones en la Activity que muestra los datos de un viaje guardado,
+	 *  muestra unicamente la opcion de compartir dicho viaje.
 	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
 	 */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		Log.i(TAG, "onCreateOptionsMenu");
+		Log.d(TAG, "onCreateOptionsMenu");
 		getMenuInflater().inflate(R.menu.travel_menu, menu);
 		return true;
 	}// onCreateOptionsMenu()
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * Genera las acciones necesarias para compartir un viaje con otra app.
 	 * @see android.app.Activity#onMenuItemSelected(int, android.view.MenuItem)
 	 */
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		Log.i(TAG, "onMenuItemSelected");
+		Log.d(TAG, "onMenuItemSelected");
 		switch (item.getItemId()) {
 		case R.id.menu_share_travel:
-			// Creamos el Intent para lanzar la Activity que permita compartir
-			// el viaje
+			//## Creamos el Intent para lanzar la Activity que permita compartir el viaje
 			Intent sendIntent = new Intent();
 			sendIntent.setAction(Intent.ACTION_SEND);
 			sendIntent.putExtra(Intent.EXTRA_TEXT, BUNDLE_CITY + "("
@@ -111,12 +111,10 @@ public class TravelActivity extends Activity {
 			startActivity(Intent.createChooser(sendIntent, getResources()
 					.getText(R.string.send_to)));
 			break;
-
 		default:
 			Toast.makeText(this, "Invalid option", Toast.LENGTH_LONG).show();
 			break;
 		}
-
 		return super.onMenuItemSelected(featureId, item);
 	}// onMenuItemSelected()
 

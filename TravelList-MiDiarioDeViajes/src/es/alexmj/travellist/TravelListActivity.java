@@ -39,7 +39,7 @@ import android.widget.TextView;
  * VERSION 3: Nuevas funcionalidades para que interactuen unas activities con
  * otras. Ahora es posible añadir, borrar, editar y compartir un viaje.
  * 
- * @author Alejandro.Marijuan
+ * @author Alejandro.Marijuan@googlemail.com
  * 
  */
 public class TravelListActivity extends ListActivity {
@@ -52,8 +52,9 @@ public class TravelListActivity extends ListActivity {
 	private String result;
 
 	/**
+	 * Adapter que contiene la lista con los viajes del diario.
 	 * @author Alejandro.Marijuan
-	 * 
+	 *
 	 */
 	private class TravelAdapter extends ArrayAdapter<TravelInfo> {
 
@@ -109,16 +110,22 @@ public class TravelListActivity extends ListActivity {
 
 	}
 
+	/**
+	 * Vista para cada elemento de la lista.
+	 * @author Alejandro.Marijuan
+	 *
+	 */
 	static class ViewHolder {
 		TextView text1;
 		TextView text2;
 	}// ViewHolder()
 
-	/*
-	 * (non-Javadoc) Clase original, sin modificar.
-	 * 
-	 * @see android.app.Activity#onCreate(android.os.Bundle)
-	 */
+	/**
+     * Genera la lista de viajes.
+     * Genera un Intent para almacenar un viaje nuevo.
+     * Asocia los menus contextuales a los controles.
+     * @see android.app.Activity#onCreate(android.os.Bundle)
+     */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		Log.i(TAG, "onCreate");
@@ -170,21 +177,19 @@ public class TravelListActivity extends ListActivity {
 		return travels;
 	}// getData()
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
-	 */
+	/**
+     * Crea un menu de opciones, contiene la opcion generar un nuevo viaje.
+     * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
+     */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
 		Log.i(TAG, "onCreateOptionsMenu");
 		getMenuInflater().inflate(R.menu.travel_list_menu, menu);
 		return true;
-	}// onCreateOptionsMenu
+	}// onCreateOptionsMenu()
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * Lanza un Intent para crear un nuevo viaje.
 	 * @see android.app.Activity#onMenuItemSelected(int, android.view.MenuItem)
 	 */
 	@Override
@@ -218,19 +223,16 @@ public class TravelListActivity extends ListActivity {
 		// Toast.makeText(this, "Invalid option", Toast.LENGTH_LONG).show();
 		// break;
 		}
-
 		return super.onMenuItemSelected(featureId, item);
 	}// onMenuItemSelected()
 
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see android.app.ListActivity#onListItemClick(android.widget.ListView,
-	 * android.view.View, int, long)
+	/**
+	 * Crea el Intent con los datos necesarios para mostrar un viaje por pantalla.
+	 * @see android.app.ListActivity#onListItemClick(android.widget.ListView, android.view.View, int, long)
 	 */
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
-		Log.i(TAG, "onListItemClick");
+		Log.d(TAG, "onListItemClick");
 		// ##Tomamos la informacion del viaje seleccionado
 		TravelInfo info = adapter.getItem(position);
 		// ##Creamos el Intent para lanzar la Activity TravelActivity
@@ -246,14 +248,13 @@ public class TravelListActivity extends ListActivity {
 		super.onListItemClick(l, v, position, id);
 	}// onListItemClick()
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * Recoge los datos de un viaje editado.
 	 * @see android.support.v4.app.FragmentActivity#onActivityResult(int, int,
 	 * android.content.Intent)
 	 */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		Log.i(TAG, "onActivityResult");
+		Log.d(TAG, "onActivityResult");
 		super.onActivityResult(requestCode, resultCode, data);
 		
 		if (resultCode == RESULT_OK
@@ -280,18 +281,17 @@ public class TravelListActivity extends ListActivity {
 			Log.i(TAG, "ACCIÓN CANCELADA " + resultCode + "-" + requestCode);
 		}
 
-	}// onActivityResult
+	}// onActivityResult()
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * Crea un menu con opciones para pulsacion larga sobre un item viaje.
 	 * @see android.app.Activity#onCreateContextMenu(android.view.ContextMenu,
 	 * android.view.View, android.view.ContextMenu.ContextMenuInfo)
 	 */
 	@Override
 	public void onCreateContextMenu(ContextMenu menu, View v,
 			ContextMenuInfo menuInfo) {
-		Log.i(TAG, "onCreateContextMenu");
+		Log.d(TAG, "onCreateContextMenu");
 		super.onCreateContextMenu(menu, v, menuInfo);
 		Log.i(TAG, "pulsación larga...");
 		MenuInflater inflater = getMenuInflater();
@@ -309,16 +309,15 @@ public class TravelListActivity extends ListActivity {
 		//
 		// inflater.inflate(R.menu.menu_ctx_lista, menu);
 		// }
-	}
+	}// onCreateContextMenu()
 
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
+	 * Genera las opciones de COMPARTIR,EDITAR,BORRAR.
 	 * @see android.app.Activity#onContextItemSelected(android.view.MenuItem)
 	 */
 	@Override
 	public boolean onContextItemSelected(MenuItem item) {
-		Log.i(TAG, "onContextItemSelected");
+		Log.d(TAG, "onContextItemSelected");
 		AdapterView.AdapterContextMenuInfo info;
 		try {
 			info = (AdapterView.AdapterContextMenuInfo) item.getMenuInfo();
@@ -331,8 +330,7 @@ public class TravelListActivity extends ListActivity {
 		switch (item.getItemId()) {
 		case R.id.CtxLblOpc1:
 			Log.i(TAG, "Etiqueta: Opcion 1 pulsada!--COMPARTIR");
-			// Creamos el Intent para lanzar la Activity que permita compartir
-			// el viaje
+			//## Creamos el Intent para lanzar la Activity que permita compartir el viaje
 			Intent sendIntent = new Intent();
 			sendIntent.setAction(Intent.ACTION_SEND);
 			TravelInfo myTrip = adapter.getItem((int) id);
@@ -393,6 +391,5 @@ public class TravelListActivity extends ListActivity {
 		default:
 			return super.onContextItemSelected(item);
 		}
-	}
-
+	}// onContextItemSelected()
 }

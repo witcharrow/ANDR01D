@@ -12,7 +12,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import android.app.DatePickerDialog;
 
-/*
+/**
  * TravelActivity vacia a modo de ejemplo.
  * Sustituye esta clase por la clase EditTravelActivity que creaste para el
  *  ejercicio de la unidad 2.
@@ -22,7 +22,7 @@ public class EditTravelActivity extends FragmentActivity implements
 DatePickerDialog.OnDateSetListener {
 
 	private static final String TAG = "EditTravelActivity: --->";
-	// Variables necesarias para calcular el año	
+	//## Variables necesarias para calcular el año	
 	private static final String BUNDLE_DAY = "day";
 	private static final String BUNDLE_MONTH = "month";
 	private static final String BUNDLE_YEAR = "anno";
@@ -32,7 +32,7 @@ DatePickerDialog.OnDateSetListener {
 	private int mMonth;
 	private int mDay;	
 	
-	// Variables para ciudad, pais y nota
+	//## Variables para ciudad, pais y nota
 	private static final String BUNDLE_CITY = "ciudad";
 	private static final String BUNDLE_COUNTRY = "pais";	
 	private static final String BUNDLE_NOTE = "nota";	
@@ -42,12 +42,13 @@ DatePickerDialog.OnDateSetListener {
 	private boolean trip4edit=false;
 	private Integer yearResult4edit=0;
 	
-	/* (non-Javadoc)
+	/**
+	 * Operaciones para seleccionar los datos.
 	 * @see android.app.Activity#onCreate(android.os.Bundle)
 	 */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		Log.i(TAG, "onCreate");
+		Log.d(TAG, "onCreate");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_edit_travel);		
 		mEdit = (EditText) findViewById(R.id.pick_year);
@@ -59,7 +60,7 @@ DatePickerDialog.OnDateSetListener {
 			}
 		});		
 		
-		//Parte para Ciudad, Pais y nota		
+		//## Parte para Ciudad, Pais y nota		
 		mCity = (EditText) findViewById(R.id.city);
 		mCountry = (EditText) findViewById(R.id.country);
 		mNote = (EditText) findViewById(R.id.note);
@@ -103,40 +104,41 @@ DatePickerDialog.OnDateSetListener {
 							+ mNote.getText().toString());					
 					myTripEdited.putExtra("myTripEdited", resultsTrip);					
 					setResult(RESULT_OK,myTripEdited);
-					//##setResult(RESULT_OK,myTripEdited.putExtra("myTripEdited", mCity.getText().toString()));
 					finish();
 				}
 			}
 		});
 				
-	}//onCreate
-	
-	
+	}// onCreate()
+		
 	/**
-	 * @param view
+	 * Muestra el dialogo para introducir el anio.
+	 * @param view dialogo
 	 */
 	public void showDatePickerDialog(View view) {
-		Log.i(TAG, "showDatePickerDialog");
-		// inflate DatePicker, or e.g. get it from a DatePickerDialog:
+		Log.d(TAG, "showDatePickerDialog");
+		//## inflate DatePicker, or e.g. get it from a DatePickerDialog:
 		datePickerFragment = new DatePickerFragment();
 		datePickerFragment.show(getFragmentManager(), "DatePicker");
 
-	}//showDatePickerDialog
+	}// showDatePickerDialog()
 	
 	/**
-	 * @param year
-	 * @param monthString
-	 * @param day
+	 * Guarda los datos de la fecha.
+	 * @param year como anio
+	 * @param monthString como mes
+	 * @param day como dia
 	 */
 	public void populateSetDate(int year, String monthString, int day) {
-		Log.i(TAG, "populateSetDate");
+		Log.d(TAG, "populateSetDate");
 		mEdit = (EditText) findViewById(R.id.pick_year);
 		mEdit.setText(new StringBuilder()
-		// Month is 0 based so add 1
+		//## Month is 0 based so add 1
 				.append(year).append(" "));
-	}//populateSetDate
+	}// populateSetDate()
 	
-	/* (non-Javadoc)
+	/**
+	 * Establece la fecha a partir de los valores recogidos. 
 	 * @see android.app.DatePickerDialog.OnDateSetListener#onDateSet(android.widget.DatePicker, int, int, int)
 	 */
 	@Override
@@ -148,18 +150,16 @@ DatePickerDialog.OnDateSetListener {
 				.toString(mMonth);
 		Log.i(TAG, "onDateSet: "+dd+"/"+monthString+"/"+yy);
 		populateSetDate(yy, monthString, dd);
-	}//onDateSet
-	
-	
-	/*
-	 * (non-Javadoc)
-	 * 
+	}// onDateSet()
+		
+	/**
+	 * Guarda la instancia de la fecha y los datos del viaje introducidos. 
 	 * @see android.app.Activity#onSaveInstanceState(android.os.Bundle)
 	 */
 	@Override
 	protected void onSaveInstanceState(Bundle outState) {
-		Log.i(TAG, "onSaveInstanceState");
-		// Guardamos el estado
+		Log.d(TAG, "onSaveInstanceState");
+		//## Guardamos el estado
 		int day = mDay;
 		int month = mMonth;
 		int anno = mYear;
@@ -174,15 +174,16 @@ DatePickerDialog.OnDateSetListener {
 		outState.putString(BUNDLE_NOTE, nota);
 		
 		super.onSaveInstanceState(outState);
-	}//onSaveInstanceState
+	}// onSaveInstanceState()
 
-	/* (non-Javadoc)
+	/**
+	 * Restablece la instancia de la fecha y los datos del viaje introducidos.
 	 * @see android.app.Activity#onRestoreInstanceState(android.os.Bundle)
 	 */
 	@Override
 	protected void onRestoreInstanceState(Bundle savedInstanceState) {
-		Log.i(TAG, "onRestoreInstanceState");
-		//Restauramos el estado
+		Log.d(TAG, "onRestoreInstanceState");
+		//## Restauramos el estado
 		if (savedInstanceState != null){
 			String ciudad = savedInstanceState.getString(BUNDLE_CITY);
 			String pais = savedInstanceState.getString(BUNDLE_COUNTRY);
@@ -194,16 +195,16 @@ DatePickerDialog.OnDateSetListener {
 		}
 		
 		super.onRestoreInstanceState(savedInstanceState);
-	}//onRestoreInstanceState
+	}// onRestoreInstanceState()
 	
 	/**
-	 * Muestra un mensaje por pantalla si se han introducido los datos de Ciudad, País y Año.
+	 * Muestra un mensaje por pantalla si se han introducido los datos de Ciudad, Pais y Anio.
 	 * La nota es opcional, si los otros parámetros no están rellenos en el formulario muestra
-	 *   un mensaje indicándolo.
+	 *   un mensaje indicandolo.
 	 * @param button para mostrar la información a guardar del viaje
 	 */
 	private boolean checkInputData(Button button) {
-		Log.i(TAG, "checkInputData");
+		Log.d(TAG, "checkInputData");
 		boolean allDataFill = false;
 		if (!mCity.getText().toString().isEmpty()
 				&& !mCountry.getText().toString().isEmpty()) {			
@@ -214,7 +215,5 @@ DatePickerDialog.OnDateSetListener {
 					Toast.LENGTH_LONG).show();
 		}
 		return allDataFill;
-	}//checkInputData
-	
-
+	}// checkInputData()
 }
