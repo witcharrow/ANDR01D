@@ -16,6 +16,7 @@ import android.widget.Toast;
  *            la clase TravelActivity que creaste para el ejercicio de la unidad 2. 
  * VERSION 2: incluye ahora funcionalidad para pasar realizar operaciones CRUD con cada viaje. 
  * VERSION 3: Se aniade una nueva Base de datos para almacenar los viajes. No afecta a esta Activity. 
+ * VERSION 4: Aniadimos un provider para trabajar con la base de datos.
  * 
  * @author Alejandro.Marijuan@googlemail.com
  *

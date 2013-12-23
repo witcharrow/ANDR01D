@@ -4,10 +4,13 @@ package es.alexmj.travellist;
 import java.util.ArrayList;
 
 import es.alexmj.travellist.data.TravelsDatabaseHelper;
+import es.alexmj.travellist.data.TravelsProvider;
+import es.alexmj.travellist.data.TravelsProvider.Travels;
 
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -40,6 +43,7 @@ import android.widget.TextView;
  * VERSION 3: Nuevas funcionalidades para que interactuen unas activities con
  * 			otras. Ahora es posible añadir, borrar, editar y compartir un viaje. Se
  * 			aniade una base de datos que gestiona el almacenamiento de viajes.
+ * VERSION 4: Aniadimos un provider para trabajar con la base de datos.
  * 
  * @author Alejandro.Marijuan@googlemail.com
  * 
@@ -52,7 +56,7 @@ public class TravelListActivity extends ListActivity {
 	// ##Para comunicar con la EditTravelActivity
 	private String result;
 	
-	// ##VERSION 3Database
+	// ##VERSION 3: Database
 	private static TravelsDatabaseHelper dbHelper;
 	private TravelAdapter adapter;
 
@@ -61,60 +65,43 @@ public class TravelListActivity extends ListActivity {
 	 * @author Alejandro.Marijuan
 	 *
 	 */
-	private class TravelAdapter extends ArrayAdapter<TravelInfo> {
-
+	private class TravelAdapter extends ArrayAdapter<TravelInfo>{
 		private Context context;
 		private ArrayList<TravelInfo> travels;
 		private static final int RESOURCE = android.R.layout.simple_list_item_2;
-
 		public TravelAdapter(Context context, ArrayList<TravelInfo> travels) {
 			super(context, RESOURCE, travels);
-
 			this.context = context;
 			this.travels = travels;
 		}// TravelAdapter()
 
-		/*
-		 * (non-Javadoc)
-		 * 
-		 * @see android.widget.ArrayAdapter#getView(int, android.view.View,
-		 * android.view.ViewGroup)
+		/* (non-Javadoc)
+		 * @see android.widget.ArrayAdapter#getView(int, android.view.View, android.view.ViewGroup)
 		 */
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
-
 			LinearLayout view;
 			ViewHolder holder;
-
-			if (convertView == null) {
+			if (convertView == null){
 				view = new LinearLayout(context);
-
-				LayoutInflater inflater = (LayoutInflater) context
-						.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+				LayoutInflater inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
 				inflater.inflate(RESOURCE, view, true);
-
 				holder = new ViewHolder();
 				holder.text1 = (TextView) view.findViewById(android.R.id.text1);
 				holder.text2 = (TextView) view.findViewById(android.R.id.text2);
-				view.setTag(holder);
-
+				view.setTag(holder);				
 			} else {
 				view = (LinearLayout) convertView;
 				holder = (ViewHolder) view.getTag();
-			}
-
+			}			
 			//## Rellenamos la vista con los datos
 			TravelInfo info = travels.get(position);
-			holder.text1.setText(info.getCity() + " (" + info.getCountry()
-					+ ")");
-			holder.text2.setText(getResources().getString(R.string.year) + " "
-					+ info.getYear());
-
+			holder.text1.setText(info.getCity() + " (" + info.getCountry() + ")");
+			holder.text2.setText(getResources().getString(R.string.year) + " " + info.getYear());			
 			return view;
-		}// getView()
-
+		}// getView()		
 	}
-
+	
 	/**
 	 * Vista para cada elemento de la lista.
 	 * @author Alejandro.Marijuan
@@ -125,72 +112,31 @@ public class TravelListActivity extends ListActivity {
 		TextView text2;
 	}// ViewHolder()
 
-	/**
+    /**
      * Genera la lista de viajes.
      * Genera un Intent para almacenar un viaje nuevo.
      * Asocia los menus contextuales a los controles.
      * @see android.app.Activity#onCreate(android.os.Bundle)
      */
-	@Override
-	protected void onCreate(Bundle savedInstanceState) {
-		Log.d(TAG, "onCreate");
-		super.onCreate(savedInstanceState);
-		/**DEL**
-		// ## Generamos los datos
-		ArrayList<TravelInfo> values = getData();
-		// ## Creamos el adapter y lo asociamos a la activity
-		adapter = new TravelAdapter(this, values);
-		setListAdapter(adapter);*/		
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+    	Log.d(TAG, "onCreate");
+        super.onCreate(savedInstanceState);        
         dbHelper = new TravelsDatabaseHelper(this);
-        // ##Obtenemos los datos de la base de datos
+        // ## Obtenemos los datos de la base de datos
         ArrayList<TravelInfo> values = dbHelper.getTravelsList();
-        // ##Creamos el adapter y lo asociamos a la activity
+        // ## Creamos el adapter y lo asociamos a la activity
         adapter = new TravelAdapter(this, values);        
-        setListAdapter(adapter);
-        
-        // ##Para devolver el resultado a la EditTravelActivity
+        setListAdapter(adapter);        
+        // ## Para devolver el resultado a la EditTravelActivity
 		Intent returnIntent = new Intent();
 		returnIntent.putExtra("result", result);
 		setResult(RESULT_OK, returnIntent);
-		// ##Asociamos los menús contextuales a los controles
+		// ## Asociamos los menús contextuales a los controles
 		registerForContextMenu(getListView());
-
-	}// onCreate()
-
-	/**
-	 * Generamos datos a mostrar. En una aplicacion funcional se tomarian de
-	 * base de datos o algun otro medio.
-	 * 
-	 * @return viajes creados
-	 *
-	private ArrayList<TravelInfo> getData() {
-		Log.d(TAG, "getData");
-		ArrayList<TravelInfo> travels = new ArrayList<TravelInfo>();
-
-		TravelInfo info = new TravelInfo("Londres", "UK", 2012,
-				"¡Juegos Olimpicos!");
-		TravelInfo info2 = new TravelInfo("Paris", "Francia", 2007, "Roquefort");
-		TravelInfo info3 = new TravelInfo("Gotham City", "EEUU", 2011,
-				"¡¡Batman!!");
-		TravelInfo info4 = new TravelInfo("Hamburgo", "Alemania", 2009,
-				"Wunderbar!");
-		TravelInfo info5 = new TravelInfo("Pekin", "China", 2011);
-		TravelInfo info6 = new TravelInfo(getResources().getString(
-				R.string.cityResult), getResources().getString(
-				R.string.countryResult), Integer.valueOf(getResources()
-				.getString(R.string.yearResult)), getResources().getString(
-				R.string.noteResult));
-
-		travels.add(info);
-		travels.add(info2);
-		travels.add(info3);
-		travels.add(info4);
-		travels.add(info5);
-		travels.add(info6);
-		return travels;
-	}// getData()*/
-
-	/**
+    }// onCreate()
+    
+    /**
      * Crea un menu de opciones, contiene la opcion generar un nuevo viaje.
      * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
      */
@@ -210,11 +156,11 @@ public class TravelListActivity extends ListActivity {
 		Log.d(TAG, "onMenuItemSelected");
 		switch (item.getItemId()) {
 		case R.id.menu_new_travel:
-			// Creamos el Intent para lanzar la Activity EditTravelActivity
-			Intent intent = new Intent(this, EditTravelActivity.class);
+			//## Creamos el Intent para lanzar la Activity EditTravelActivity
+			Intent intent = new Intent(this, EditTravelActivity.class);		
 			startActivityForResult(intent, REQUEST_CODE_NEW_TRIP);
-			break;		 
-		}
+			break;
+		}		
 		return super.onMenuItemSelected(featureId, item);
 	}// onMenuItemSelected()
 
@@ -247,8 +193,7 @@ public class TravelListActivity extends ListActivity {
 	 */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.d(TAG, "onActivityResult");
-		super.onActivityResult(requestCode, resultCode, data);
-		
+		super.onActivityResult(requestCode, resultCode, data);		
 		if (resultCode == RESULT_OK
 				&& data.getExtras().containsKey("myTripEdited")) {
 			Log.i(TAG, "RESULT_OK");
@@ -261,18 +206,16 @@ public class TravelListActivity extends ListActivity {
 			TravelInfo myNewTripInfo = new TravelInfo(myNewTripCity,
 					myNewTripCountry, myNewTripYear, myNewTripNote);
 			Log.i(TAG, "Añadimos al adapter la info del viaje");
-			adapter.add(myNewTripInfo);
-			
+			adapter.add(myNewTripInfo);			
 			if (requestCode == REQUEST_CODE_EDIT_TRIP) {
-				Log.i(TAG, "BORRAR VIAJE ANTIGUO " + resultCode + "-"
-						+ requestCode);
+				Log.i(TAG, "REQUEST_CODE_EDIT_TRIP");
+				Log.i(TAG, "BORRAR VIAJE ANTIGUO " + resultCode + "-"+ requestCode);
 				Log.i(TAG, "ID del viaje ="+data.getExtras().getInt("TripId"));
 				int id=data.getExtras().getInt("TripId");
 				dbHelper.updateTravel(myNewTripInfo, id+1);//hay que incrementar la posición, empieza desde 1 y no 0			
 				adapter.remove(adapter.getItem((int) id));
 				setListAdapter(adapter);
-			}
-			
+			}			
 		} else {
 			Log.i(TAG, "ACCIÓN CANCELADA " + resultCode + "-" + requestCode);
 		}
@@ -296,6 +239,34 @@ public class TravelListActivity extends ListActivity {
 	}// onCreateContextMenu()
 
 	/**
+	 * Generamos datos a mostrar. En una aplicacion funcional se tomarian de base
+	 *  de datos o algun otro medio
+	 * @return
+	 */
+	public ArrayList<TravelInfo> getTravelsList() {
+		Log.d(TAG, "getTravelsList");
+		ArrayList<TravelInfo> travels = new ArrayList<TravelInfo>();
+		Cursor c = getContentResolver().query(TravelsProvider.CONTENT_URI,
+				null, null, null, Travels.YEAR);
+		if (c != null && c.moveToFirst()) {
+			int cityIndex = c.getColumnIndex(Travels.CITY);
+			int countryIndex = c.getColumnIndex(Travels.COUNTRY);
+			int yearIndex = c.getColumnIndex(Travels.YEAR);
+			int noteIndex = c.getColumnIndex(Travels.NOTE);
+			do {
+				String city = c.getString(cityIndex);
+				String country = c.getString(countryIndex);
+				int year = c.getInt(yearIndex);
+				String note = c.getString(noteIndex);
+				TravelInfo travel = new TravelInfo(city, country, year, note);
+				travels.add(travel);
+			} while (c.moveToNext());
+			c.close();
+		}
+		return travels;
+	}// getTravelsList()
+    
+	/**
 	 * Genera las opciones de COMPARTIR,EDITAR,BORRAR.
 	 * @see android.app.Activity#onContextItemSelected(android.view.MenuItem)
 	 */
@@ -309,7 +280,7 @@ public class TravelListActivity extends ListActivity {
 			return false;
 		}
 		long id = getListAdapter().getItemId(info.position);
-		Log.i(TAG, "id = " + id + "---" + item.getTitle());
+		Log.i(TAG, "ListView id = " + id + "---" + item.getTitle());
 
 		switch (item.getItemId()) {
 		case R.id.CtxLblOpc1:
@@ -320,11 +291,13 @@ public class TravelListActivity extends ListActivity {
 //DEL//			TravelInfo myTrip = adapter.getItem((int) id);
 			
 			TravelInfo myTrip = dbHelper.getTravelsList().get((int)id);
-			
+			// ## Obtenemos los datos para incluirlos en el intent.
 			String cityResult = myTrip.getCity();
 			String countryResult = myTrip.getCountry();
 			Integer yearResult = myTrip.getYear();
 			String noteResult = myTrip.getNote();
+			// ## Creamos la la forma en que quedará representado el viaje al
+			// compartirlo
 			if (noteResult == null)
 				noteResult = getResources().getString(R.string.emptyNote);
 			sendIntent.putExtra(Intent.EXTRA_TEXT,cityResult + "("
@@ -335,37 +308,30 @@ public class TravelListActivity extends ListActivity {
 			startActivity(Intent.createChooser(sendIntent, getResources()
 					.getText(R.string.send_to)));
 			return true;
-
 		case R.id.CtxLblOpc2:
 			Log.i(TAG, "Etiqueta: Opcion 2 pulsada!--EDITAR");
 			//## Creamos el Intent para lanzar la Activity EditTravelActivity
 			Intent intent = new Intent(this, EditTravelActivity.class);
 //DEL//			TravelInfo myTrip4Edit = adapter.getItem((int) id);
 			TravelInfo myTrip4Edit = dbHelper.getTravelsList().get((int)id);
-			
+			// ## Obtenemos los datos para incluirlos en el Intent
 			String cityResult4edit = myTrip4Edit.getCity();
 			String countryResult4edit = myTrip4Edit.getCountry();
 			Integer yearResult4edit = myTrip4Edit.getYear();
 			String noteResult4edit = myTrip4Edit.getNote();
 			Integer originalTripPosition = (int) id;
-			
 			if (noteResult4edit == null)
 				noteResult4edit = getResources().getString(R.string.emptyNote);
-			
 			intent.putExtra("SavedDataTripCity", cityResult4edit);
 			intent.putExtra("SavedDataTripCountry", countryResult4edit);
 			intent.putExtra("SavedDataTripYear", yearResult4edit);
 			intent.putExtra("SavedDataTripNote", noteResult4edit);
-			intent.putExtra("TripId",originalTripPosition);
-			
+			intent.putExtra("TripId", originalTripPosition);
 			Log.i(TAG, "info del viaje para editar: " + cityResult4edit + ","
 					+ countryResult4edit + "," + yearResult4edit.toString()
 					+ "," + noteResult4edit + "," + originalTripPosition);
-			
-			
 			startActivityForResult(intent, REQUEST_CODE_EDIT_TRIP);
 			return true;
-
 		case R.id.CtxLblOpc3:
 				Log.i(TAG, "Etiqueta: Opcion 3 pulsada!--BORRAR");
 				Log.i(TAG, "---Nro de viajes antes de BORRAR (DB): "+ dbHelper.getTravelsList().size());			
@@ -375,9 +341,8 @@ public class TravelListActivity extends ListActivity {
 				Log.i(TAG, "---ADAPTER despues de BORRAR en adapter: "+ adapter.getCount());			
 				Log.i(TAG, "---Numero de viajes despues de BORRAR (DB): "+ dbHelper.getTravelsList().size());
 			return true;
-
 		default:
 			return super.onContextItemSelected(item);
 		}
-	}// onContextItemSelected()
+	}// onContextItemSelected()	
 }

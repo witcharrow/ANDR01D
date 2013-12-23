@@ -19,6 +19,7 @@ import android.app.DatePickerDialog;
  * VERSION 2: incluye ahora funcionalidad para pasar realizar operaciones CRUD con cada viaje. 
  * VERSION 3: Se aniade una nueva Base de datos para almacenar los viajes. Ahora en lugar de 
  * 			  borrar un viaje y reemplazarlo por uno nuevo, aniadimos funcionalidad de update. 
+ * VERSION 4: Aniadimos un provider para trabajar con la base de datos.
  * 
  * @author Alejandro.Marijuan@googlemail.com
  *

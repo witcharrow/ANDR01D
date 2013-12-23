@@ -7,6 +7,7 @@ package es.alexmj.travellist;
  * VERSION 1: Sin cambios.
  * VERSION 2: Sin cambios.
  * VERSION 3: Se aniade la BBDD a la aplicacion. Sin cambios.
+ * VERSION 4: Aniadimos un provider para trabajar con la base de datos.
  * 
  * @author Alejandro.Marijuan@googlemail.com
  *

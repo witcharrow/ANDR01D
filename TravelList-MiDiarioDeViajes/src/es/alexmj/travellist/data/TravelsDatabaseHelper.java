@@ -13,30 +13,44 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
 
 
+/**
+ * Operaciones CRUD para la base de datos de viajes. Generamos una base de datos,
+ *  en la cual creamos una tabla con distintos viajes, almacenando cada uno con:
+ *  	- ID
+ *  	- CIUDAD
+ *  	- PAIS
+ *  	- ANIO
+ *  	- NOTA
+ *  VERSION 4: Aniadimos un provider para trabajar con la base de datos.
+ * @author Alejandro.Marijuan@googlemail.com
+ *
+ */
 public class TravelsDatabaseHelper extends SQLiteOpenHelper {
 	
-	private static final String TAG = "TravelsDatabaseHelper: --->";
-	private static final int DATABASE_VERSION = 1;
+	private static final String TAG = "TravelsDatabaseHelper -->";	
+	
+	//## VERSION 4: esqueleto del provider
     private static final String DATABASE_NAME = "travels.db";
-	public static final String TABLE_NAME = TravelsConstants.TRAVELS_TABLE_NAME;
-    private Resources res;
+    private static final int DATABASE_VERSION = 2;
+	public static final String TABLE_NAME = "travels";
+	private Resources res;
 	
 	/**
+	 * Constructor de la BBDD de viajes.
 	 * @param context
 	 */
 	public TravelsDatabaseHelper(Context context){
 		super(context, DATABASE_NAME, null, DATABASE_VERSION);
 		res = context.getResources();
 	}
-	
 
-
-	/* (non-Javadoc)
+	/**
+	 * Crea la tabla en la base de datos de viajes con ID, Ciudad, Anio y Nota.
 	 * @see android.database.sqlite.SQLiteOpenHelper#onCreate(android.database.sqlite.SQLiteDatabase)
 	 */
 	@Override
 	public void onCreate(SQLiteDatabase db) {
-		Log.d(TAG, "onCreate");
+		Log.d(TAG, "onCreate '" + TABLE_NAME +"' on DDBB '"+DATABASE_NAME+"', v"+DATABASE_VERSION);
 		db.execSQL("CREATE TABLE " + TABLE_NAME + " (" +
 				TravelsConstants._ID + " INTEGER PRIMARY KEY AUTOINCREMENT," +
 				TravelsConstants.CITY + " TEXT NOT NULL, " +
@@ -48,21 +62,22 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
 		
 		//## Initial data
 		initialData(db);
-	}
+	}// onCreate()
 
-	/* (non-Javadoc)
+	/**
+	 * Comprueba la versión de la base de datos, si es antigua borra la tabla.
 	 * @see android.database.sqlite.SQLiteOpenHelper#onUpgrade(android.database.sqlite.SQLiteDatabase, int, int)
 	 */
 	@Override
-	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {		
-		Log.d(TAG, "onUpgrade");
+	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+
+		Log.d(TAG, "onUpgrade '" + TABLE_NAME +"' on DDBB '"+DATABASE_NAME+"', v"+DATABASE_VERSION);
 		if (oldVersion < newVersion){
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME + ";");
 			onCreate(db);
 		}
-	}
+	}// onUpgrade()
 
-	
 	/**
 	 * Inicializamos los valores de los viajes en la BBDD.
 	 * @param db es la BBDD
@@ -83,9 +98,6 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
 		insertTravel(db, city, country, year, note);
 	}
 	
-	 
-    
-
 	/**
      * Generamos datos a mostrar.En una aplicacion funcional se 
      *  tomarian de base de datos o algun otro medio
@@ -130,18 +142,18 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
 		values.put(TravelsConstants.CITY, city);
 		values.put(TravelsConstants.COUNTRY, country);
 		values.put(TravelsConstants.YEAR, year);
-		values.put(TravelsConstants.NOTE, note);
-		
+		values.put(TravelsConstants.NOTE, note);		
 		db.insert(TABLE_NAME, null, values);		
-	}
-    
+	}// insertTravel()
+
+	
     /**
      * Actualizamos un viaje que ya se encuentra en la BBDD
      * @param myTrip informacion del viaje a ser modificado
      * @return valor de la fila a ser actualizada
      */
     public int updateTravel(TravelInfo myTrip, int positionId) {
-    	Log.d(TAG, "updateTravel");
+    	Log.d(TAG, "updateTravel IN "+DATABASE_NAME+": "+myTrip.getCity()+"("+myTrip.getCountry()+") Año "+myTrip.getYear()+" - '"+myTrip.getNote()+"'");
         SQLiteDatabase db = this.getWritableDatabase();     
         ContentValues values = new ContentValues();
         values.put(TravelsConstants.CITY, myTrip.getCity());
@@ -151,9 +163,8 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
      
         // ##updating row
         return db.update(TABLE_NAME, values, TravelsConstants._ID + " = ?",
-                new String[] { String.valueOf(positionId) });
-        
-    }
+                new String[] { String.valueOf(positionId) });        
+    }// updateTravel
     
     /**
      * Borramos un viaje.
