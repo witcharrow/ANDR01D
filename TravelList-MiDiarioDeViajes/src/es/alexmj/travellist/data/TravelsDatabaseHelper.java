@@ -46,7 +46,7 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
 			");");
 		
 		
-		//Initial data
+		//## Initial data
 		initialData(db);
 	}
 
@@ -68,7 +68,7 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
 	 * @param db es la BBDD
 	 */
 	private void initialData(SQLiteDatabase db){
-		Log.i(TAG, "initialData");
+		Log.d(TAG, "initialData");
 		insertTravel(db, "Londres", "UK", 2012, "¡Juegos Olimpicos!");
 		insertTravel(db, "Paris", "Francia", 2007, "Roquefort");
 		insertTravel(db, "Gotham City", "EEUU", 2011, "¡¡Batman!!");
@@ -92,7 +92,7 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
      * @return lista de viajes
      */
     public ArrayList<TravelInfo> getTravelsList(){ 
-    	Log.i(TAG, "getTravelsList");
+    	Log.d(TAG, "getTravelsList");
     	ArrayList<TravelInfo> travels = new ArrayList<TravelInfo>();    	
     	SQLiteDatabase db = getReadableDatabase();    	
     	Cursor c = db.query(TravelsConstants.TRAVELS_TABLE_NAME, null, null, null, null, null, null);    	
@@ -125,7 +125,7 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
 	 * @param note es la nota a introducir
 	 */
 	public void insertTravel(SQLiteDatabase db, String city, String country, int year, String note){
-		Log.i(TAG, "insertTravel");
+		Log.d(TAG, "insertTravel");
 		ContentValues values = new ContentValues();
 		values.put(TravelsConstants.CITY, city);
 		values.put(TravelsConstants.COUNTRY, country);
@@ -141,7 +141,7 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
      * @return valor de la fila a ser actualizada
      */
     public int updateTravel(TravelInfo myTrip, int positionId) {
-    	Log.i(TAG, "updateTravel");
+    	Log.d(TAG, "updateTravel");
         SQLiteDatabase db = this.getWritableDatabase();     
         ContentValues values = new ContentValues();
         values.put(TravelsConstants.CITY, myTrip.getCity());
@@ -149,7 +149,7 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
 		values.put(TravelsConstants.YEAR, myTrip.getYear());
 		values.put(TravelsConstants.NOTE, myTrip.getNote());
      
-        // updating row
+        // ##updating row
         return db.update(TABLE_NAME, values, TravelsConstants._ID + " = ?",
                 new String[] { String.valueOf(positionId) });
         
@@ -161,7 +161,7 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
      * @param positionId es la posicion del viaje en la BBDD
      */
     public void deleteTravel(int positionId) {
-    	Log.i(TAG, "deleteTravel");
+    	Log.d(TAG, "deleteTravel");
     	Log.i(TAG, "positionId: "+ positionId +"--"+String.valueOf(positionId) );    	
         SQLiteDatabase db = this.getWritableDatabase();        
         int result=db.delete(TABLE_NAME, TravelsConstants._ID + " = ?",
