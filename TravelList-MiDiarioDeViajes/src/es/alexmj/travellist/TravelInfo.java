@@ -4,6 +4,9 @@ package es.alexmj.travellist;
 /**
  * Esta clase contiene la informacion de un viaje. Los datos que almacena son la ciudad, el pais,
  * el anio del viaje y una nota opcional.
+ * VERSION 1: Sin cambios.
+ * VERSION 2: Sin cambios.
+ * VERSION 3: Se aniade la BBDD a la aplicacion. Sin cambios.
  * 
  * @author Alejandro.Marijuan@googlemail.com
  *

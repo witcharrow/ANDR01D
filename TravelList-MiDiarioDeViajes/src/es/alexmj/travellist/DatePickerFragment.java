@@ -12,6 +12,10 @@ import android.widget.DatePicker;
 
 /**
  * Funcion para mostrar un picker de Anios. Eliminamos el dia y el mes del picker.
+ * VERSION 1: Creacion del DatePickerFragment.
+ * VERSION 2: Sin cambios.
+ * VERSION 3: Se aniade la BBDD a la aplicacion. Sin cambios.
+ * 
  * @author Alejandro.Marijuan@googlemail.com
  *
  */

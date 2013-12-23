@@ -23,21 +23,21 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 /**
+ * Muestra las opciones para editar,crear,borrar y compartir un viaje. Pantalla principal
+ *  de la aplicacion. 
  * VERSION 1: Este ejemplo muestra el uso de una clase ListActivity que muestra
- * una lista de paises visitados.
- * 
- * Para ello hacemos uso de una extension del ArrayAdapter que contiene una
- * lista de objetos TravelInfo. El metodo getView del adapter se encarga de
- * mostrar la informacion de cada entrada TravelInfo de la forma correcta en la
- * vista.
- * 
+ * 			una lista de paises visitados.
+ * 			Para ello hacemos uso de una extension del ArrayAdapter que contiene una
+ * 			lista de objetos TravelInfo. El metodo getView del adapter se encarga de
+ * 			mostrar la informacion de cada entrada TravelInfo de la forma correcta en la
+ * 			vista. 
  * VERSION 2: Anadimos en esta version los controles necesarios para lanzar las
- * activities correspondientes a mostrar un viaje mediante un click (metodo
- * onListItemClick) y para crear un viaje usando el menu de opciones
- * (onCreateOptionsMenu y onMenuItemSelected).
- * 
+ * 			activities correspondientes a mostrar un viaje mediante un click (metodo
+ * 			onListItemClick) y para crear un viaje usando el menu de opciones
+ * 			(onCreateOptionsMenu y onMenuItemSelected).
  * VERSION 3: Nuevas funcionalidades para que interactuen unas activities con
- * otras. Ahora es posible añadir, borrar, editar y compartir un viaje.
+ * 			otras. Ahora es posible añadir, borrar, editar y compartir un viaje. Se
+ * 			aniade una base de datos que gestiona el almacenamiento de viajes.
  * 
  * @author Alejandro.Marijuan@googlemail.com
  * 
@@ -98,7 +98,7 @@ public class TravelListActivity extends ListActivity {
 				holder = (ViewHolder) view.getTag();
 			}
 
-			// Rellenamos la vista con los datos
+			//## Rellenamos la vista con los datos
 			TravelInfo info = travels.get(position);
 			holder.text1.setText(info.getCity() + " (" + info.getCountry()
 					+ ")");
@@ -128,7 +128,7 @@ public class TravelListActivity extends ListActivity {
      */
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
-		Log.i(TAG, "onCreate");
+		Log.d(TAG, "onCreate");
 		super.onCreate(savedInstanceState);
 		// ## Generamos los datos
 		ArrayList<TravelInfo> values = getData();
@@ -151,7 +151,7 @@ public class TravelListActivity extends ListActivity {
 	 * @return viajes creados
 	 */
 	private ArrayList<TravelInfo> getData() {
-		Log.i(TAG, "getData");
+		Log.d(TAG, "getData");
 		ArrayList<TravelInfo> travels = new ArrayList<TravelInfo>();
 
 		TravelInfo info = new TravelInfo("Londres", "UK", 2012,
@@ -183,7 +183,7 @@ public class TravelListActivity extends ListActivity {
      */
 	@Override
 	public boolean onCreateOptionsMenu(Menu menu) {
-		Log.i(TAG, "onCreateOptionsMenu");
+		Log.d(TAG, "onCreateOptionsMenu");
 		getMenuInflater().inflate(R.menu.travel_list_menu, menu);
 		return true;
 	}// onCreateOptionsMenu()
@@ -194,7 +194,7 @@ public class TravelListActivity extends ListActivity {
 	 */
 	@Override
 	public boolean onMenuItemSelected(int featureId, MenuItem item) {
-		Log.i(TAG, "onMenuItemSelected");
+		Log.d(TAG, "onMenuItemSelected");
 		switch (item.getItemId()) {
 		case R.id.menu_new_travel:
 			// Creamos el Intent para lanzar la Activity EditTravelActivity

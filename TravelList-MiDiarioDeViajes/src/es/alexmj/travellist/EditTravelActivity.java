@@ -13,10 +13,15 @@ import android.widget.Toast;
 import android.app.DatePickerDialog;
 
 /**
- * TravelActivity vacia a modo de ejemplo.
- * Sustituye esta clase por la clase EditTravelActivity que creaste para el
- *  ejercicio de la unidad 2.
+ * Muestra un formulario por pantalla para introducir los datos de un viaje.
+ * VERSION 1: EditTravelActivity vacia a modo de ejemplo. Sustituye esta clase por
+ *            la clase EditTravelActivity que creaste para el ejercicio de la unidad 2. 
+ * VERSION 2: incluye ahora funcionalidad para pasar realizar operaciones CRUD con cada viaje. 
+ * VERSION 3: Se aniade una nueva Base de datos para almacenar los viajes. Ahora en lugar de 
+ * 			  borrar un viaje y reemplazarlo por uno nuevo, aniadimos funcionalidad de update. 
  * 
+ * @author Alejandro.Marijuan@googlemail.com
+ *
  */
 public class EditTravelActivity extends FragmentActivity implements
 DatePickerDialog.OnDateSetListener {

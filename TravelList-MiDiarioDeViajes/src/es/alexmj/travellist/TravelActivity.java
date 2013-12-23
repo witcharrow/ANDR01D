@@ -10,10 +10,13 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 /**
- * VERSION 1: TravelActivity vacia a modo de ejemplo.
- * Sustituye esta clase por la clase TravelActivity que creaste para el ejercicio de la unidad 2.
+ * Muestra el detalle de los viajes en una pantalla a parte. Desde esta pantalla se puede
+ *  compartir el viaje con otras aplicaciones.
+ * VERSION 1: TravelActivity vacia a modo de ejemplo. Sustituye esta clase por
+ *            la clase TravelActivity que creaste para el ejercicio de la unidad 2. 
+ * VERSION 2: incluye ahora funcionalidad para pasar realizar operaciones CRUD con cada viaje. 
+ * VERSION 3: Se aniade una nueva Base de datos para almacenar los viajes. No afecta a esta Activity. 
  * 
- * VERSION 2: incluye ahora funcionalidad para pasar realizar operaciones CRUD con cada viaje.
  * @author Alejandro.Marijuan@googlemail.com
  *
  */
