@@ -19,7 +19,8 @@ import android.app.DatePickerDialog;
  * VERSION 2: incluye ahora funcionalidad para pasar realizar operaciones CRUD con cada viaje. 
  * VERSION 3: Se aniade una nueva Base de datos para almacenar los viajes. Ahora en lugar de 
  * 			  borrar un viaje y reemplazarlo por uno nuevo, aniadimos funcionalidad de update. 
- * VERSION 4: Aniadimos un provider para trabajar con la base de datos.
+ * VERSION 4: Aniadimos un provider para trabajar con la base de datos. Se aniade control por
+ * 			  id de cada viaje.
  * 
  * @author Alejandro.Marijuan@googlemail.com
  *
@@ -47,6 +48,7 @@ DatePickerDialog.OnDateSetListener {
 	private EditText mNote;
 	private boolean trip4edit=false;
 	private Integer yearResult4edit=0;
+	private int idDBResult4edit;
 	
 	/**
 	 * Operaciones para seleccionar los datos.
@@ -65,45 +67,44 @@ DatePickerDialog.OnDateSetListener {
 				showDatePickerDialog(view);
 			}
 		});		
-		
 		//## Parte para Ciudad, Pais y nota		
 		mCity = (EditText) findViewById(R.id.city);
 		mCountry = (EditText) findViewById(R.id.country);
 		mNote = (EditText) findViewById(R.id.note);
 		final Button saveTrip = (Button) findViewById(R.id.boton_visita);		
-		
-		Intent myTripEdited = getIntent();
-		
-		Bundle extrasFromTrip4edit = myTripEdited.getExtras(); 
-		
+		Intent myTripEdited = getIntent();	
+		Bundle extrasFromTrip4edit = myTripEdited.getExtras();		
 		if (extrasFromTrip4edit != null) {
+			idDBResult4edit = extrasFromTrip4edit.getInt("TripId");
+//				Log.i(TAG,"%%%%%%%%%%%%%%%%%%%%% idDBResult4edit:"+idDBResult4edit);
 			String cityResult4edit = extrasFromTrip4edit.getString("SavedDataTripCity");
 			String countryResult4edit = extrasFromTrip4edit.getString("SavedDataTripCountry");
 			yearResult4edit = extrasFromTrip4edit.getInt("SavedDataTripYear");					
 			String noteResult4edit = extrasFromTrip4edit.getString("SavedDataTripNote");
-			Log.i(TAG, "yearResult4edit RECOGIDO: " + yearResult4edit);		
-			
+//				Log.i(TAG,"%%%%%%%%%%%%%%%%%%%%% yearResult4edit RECOGIDO: " + yearResult4edit);			
 			mCity.setText(cityResult4edit);
 			mCountry.setText(countryResult4edit);
 			mEdit.setText(new StringBuilder().append(yearResult4edit).append(" "));
 			mNote.setText(noteResult4edit);
-			Log.i(TAG, "yearResult4edit ESTABLECIDO: " + yearResult4edit);
+//				Log.i(TAG,"%%%%%%%%%%%%%%%%%%%%% yearResult4edit ESTABLECIDO: " + yearResult4edit);
 			trip4edit = true;
-		}
-		
-		
-		saveTrip.setOnClickListener(new OnClickListener() {					
-
+		}		
+		saveTrip.setOnClickListener(new OnClickListener() {
 			public void onClick(View v) {				
 				if(checkInputData(saveTrip)){
-					if(mYear==0 && trip4edit)
+					if(mYear==0 && trip4edit){
 						mYear=yearResult4edit;
-					String [] resultsTrip={mCity.getText().toString(),
+					}
+					String idTrip = Integer.valueOf(idDBResult4edit).toString();					
+//						Log.i(TAG,"%%%%%%%%%%%%%%%%%%%%% idTrip:"+idTrip);
+					String [] resultsTrip={idTrip,
+										   mCity.getText().toString(),
 										   mCountry.getText().toString(),
 										   Integer.valueOf(mYear).toString(),
 										   mNote.getText().toString()};
 					Intent myTripEdited = getIntent();
 					Log.i(TAG,"setOnClickListener --> "
+							+ idTrip + " "
 							+ mCity.getText().toString() + "("
 							+ mCountry.getText().toString() + ")" + ",Año: "
 							+ Integer.valueOf(mYear).toString() + ",Nota: "
@@ -113,8 +114,7 @@ DatePickerDialog.OnDateSetListener {
 					finish();
 				}
 			}
-		});
-				
+		});				
 	}// onCreate()
 		
 	/**

@@ -57,9 +57,7 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
 				TravelsConstants.COUNTRY + " TEXT NOT NULL, " +
 				TravelsConstants.YEAR + " INTEGER NOT NULL, " +
 				TravelsConstants.NOTE + " TEXT " +
-			");");
-		
-		
+			");");		
 		//## Initial data
 		initialData(db);
 	}// onCreate()
@@ -70,7 +68,6 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
 	 */
 	@Override
 	public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-
 		Log.d(TAG, "onUpgrade '" + TABLE_NAME +"' on DDBB '"+DATABASE_NAME+"', v"+DATABASE_VERSION);
 		if (oldVersion < newVersion){
 			db.execSQL("DROP TABLE IF EXISTS " + TABLE_NAME + ";");
@@ -99,8 +96,7 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
 	}
 	
 	/**
-     * Generamos datos a mostrar.En una aplicacion funcional se 
-     *  tomarian de base de datos o algun otro medio
+     * Generamos datos a mostrar.
      * @return lista de viajes
      */
     public ArrayList<TravelInfo> getTravelsList(){ 
@@ -109,16 +105,19 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
     	SQLiteDatabase db = getReadableDatabase();    	
     	Cursor c = db.query(TravelsConstants.TRAVELS_TABLE_NAME, null, null, null, null, null, null);    	
     	if (c.moveToFirst()){
+    		int idDBIndex = c.getColumnIndex(TravelsConstants._ID);
     		int cityIndex = c.getColumnIndex(TravelsConstants.CITY);
     		int countryIndex = c.getColumnIndex(TravelsConstants.COUNTRY);
     		int yearIndex = c.getColumnIndex(TravelsConstants.YEAR);
     		int noteIndex = c.getColumnIndex(TravelsConstants.NOTE);    		
     		do {
+    			int idDB = c.getInt(idDBIndex);
     			String city = c.getString(cityIndex);
     			String country = c.getString(countryIndex);
     			int year = c.getInt(yearIndex);
-    			String note = c.getString(noteIndex);    			
-    			TravelInfo travel = new TravelInfo(city, country, year, note);    			
+    			String note = c.getString(noteIndex);
+//    				Log.i(TAG,"%%%%%%%%%%%%%%%%%%%%% idDB="+idDB);
+    			TravelInfo travel = new TravelInfo(idDB,city, country, year, note);    			
     			travels.add(travel);    			
     		} while (c.moveToNext());    		
     		c.close();
@@ -159,21 +158,19 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
         values.put(TravelsConstants.CITY, myTrip.getCity());
 		values.put(TravelsConstants.COUNTRY, myTrip.getCountry());
 		values.put(TravelsConstants.YEAR, myTrip.getYear());
-		values.put(TravelsConstants.NOTE, myTrip.getNote());
-     
+		values.put(TravelsConstants.NOTE, myTrip.getNote());     
         // ##updating row
         return db.update(TABLE_NAME, values, TravelsConstants._ID + " = ?",
                 new String[] { String.valueOf(positionId) });        
     }// updateTravel
     
     /**
-     * Borramos un viaje.
-     * TODO: corregir cuando borramos un id ya usado.
+     * Borramos un viaje. El id se obtiene del valor que esta almacenado en la base de datos. 
      * @param positionId es la posicion del viaje en la BBDD
      */
     public void deleteTravel(int positionId) {
     	Log.d(TAG, "deleteTravel");
-    	Log.i(TAG, "positionId: "+ positionId +"--"+String.valueOf(positionId) );    	
+    	Log.i(TAG, "positionId: "+ String.valueOf(positionId) +"--"+"Table ID" );    	
         SQLiteDatabase db = this.getWritableDatabase();        
         int result=db.delete(TABLE_NAME, TravelsConstants._ID + " = ?",
                 new String[] { String.valueOf(positionId) });

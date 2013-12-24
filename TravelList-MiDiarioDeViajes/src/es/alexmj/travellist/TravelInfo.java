@@ -7,7 +7,7 @@ package es.alexmj.travellist;
  * VERSION 1: Sin cambios.
  * VERSION 2: Sin cambios.
  * VERSION 3: Se aniade la BBDD a la aplicacion. Sin cambios.
- * VERSION 4: Aniadimos un provider para trabajar con la base de datos.
+ * VERSION 4: Aniadimos un provider para trabajar con la base de datos. Se añade un campo ID al viaje.
  * 
  * @author Alejandro.Marijuan@googlemail.com
  *
@@ -18,19 +18,23 @@ public class TravelInfo {
 	public static final String EXTRA_COUNTRY = "extra_country";
 	public static final String EXTRA_YEAR = "extra_year";
 	public static final String EXTRA_NOTE = "extra_note";
+	private int idDB;
 	private String city;
 	private String country;
 	private int year;
 	private String note;
 	
+	
 	/**
 	 * Constructor del objeto TravelInfo.
+	 * @param idDB 
 	 * @param city es la ciudad
 	 * @param country es el pais
 	 * @param year es el anio
 	 * @param note es la nota
 	 */
-	public TravelInfo(String city, String country, int year, String note){
+	public TravelInfo(int idDB, String city, String country, int year, String note){
+		this.idDB = idDB;
 		this.city = city;
 		this.country = country;
 		this.year = year;
@@ -43,8 +47,24 @@ public class TravelInfo {
 	 * @param country es el pais
 	 * @param year es el anio
 	 */
-	public TravelInfo(String city, String country, int year){
-		this(city, country, year, null);
+	public TravelInfo(int idDB,String city, String country, int year){
+		this(idDB, city, country, year, null);
+	}
+	
+	/**
+	 * Obtiene el id de la base de datos.
+	 * @return the idDB
+	 */
+	public int getIdDB() {
+		return idDB;
+	}
+
+	/**
+	 * Estable el id de la base de datos.
+	 * @param idDB the idDB to set
+	 */
+	public void setIdDB(int idDB) {
+		this.idDB = idDB;
 	}
 	
 	/**

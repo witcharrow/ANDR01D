@@ -2,15 +2,10 @@ package es.alexmj.travellist;
 
 
 import java.util.ArrayList;
-
 import es.alexmj.travellist.data.TravelsDatabaseHelper;
-import es.alexmj.travellist.data.TravelsProvider;
-import es.alexmj.travellist.data.TravelsProvider.Travels;
-
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -43,7 +38,8 @@ import android.widget.TextView;
  * VERSION 3: Nuevas funcionalidades para que interactuen unas activities con
  * 			otras. Ahora es posible añadir, borrar, editar y compartir un viaje. Se
  * 			aniade una base de datos que gestiona el almacenamiento de viajes.
- * VERSION 4: Aniadimos un provider para trabajar con la base de datos.
+ * VERSION 4: Aniadimos un provider para trabajar con la base de datos. Se aniade control por
+ * 			  id de cada viaje.
  * 
  * @author Alejandro.Marijuan@googlemail.com
  * 
@@ -193,28 +189,40 @@ public class TravelListActivity extends ListActivity {
 	 */
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
 		Log.d(TAG, "onActivityResult");
-		super.onActivityResult(requestCode, resultCode, data);		
-		if (resultCode == RESULT_OK
-				&& data.getExtras().containsKey("myTripEdited")) {
+		super.onActivityResult(requestCode, resultCode, data);
+		boolean newTripToAdd=false;
+		//**************Seccion para un nuevo viaje***********************//		
+		if (resultCode == RESULT_OK	&& data.getExtras().containsKey("myTripEdited")) {
 			Log.i(TAG, "RESULT_OK");
-			String[] resultsTrip = data.getExtras().getStringArray(
-					"myTripEdited");
-			String myNewTripCity = resultsTrip[0];
-			String myNewTripCountry = resultsTrip[1];
-			int myNewTripYear = Integer.valueOf(resultsTrip[2]);
-			String myNewTripNote = resultsTrip[3];
-			TravelInfo myNewTripInfo = new TravelInfo(myNewTripCity,
-					myNewTripCountry, myNewTripYear, myNewTripNote);
-			Log.i(TAG, "Añadimos al adapter la info del viaje");
-			adapter.add(myNewTripInfo);			
+			String[] resultsTrip = data.getExtras().getStringArray("myTripEdited");
+			int myNewTripID=Integer.valueOf(resultsTrip[0]);
+			if(myNewTripID==0){
+				myNewTripID=dbHelper.getTravelsList().size()+1;
+//					Log.i(TAG,"%%%%%%%%%%%%%%%%%%%%% CHANGE idTrip with:"+myNewTripID);
+				newTripToAdd=true;
+			}
+			String myNewTripCity = resultsTrip[1];
+			String myNewTripCountry = resultsTrip[2];
+			int myNewTripYear = Integer.valueOf(resultsTrip[3]);
+			String myNewTripNote = resultsTrip[4];
+			TravelInfo myNewTripInfo = new TravelInfo(myNewTripID,myNewTripCity,
+					myNewTripCountry, myNewTripYear, myNewTripNote);			
+			if(newTripToAdd){
+				Log.i(TAG, "Añadimos al adapter la info del viaje");
+				adapter.add(myNewTripInfo);
+				dbHelper.insertTravel(dbHelper.getWritableDatabase(), myNewTripCity, myNewTripCountry, myNewTripYear, myNewTripNote);
+			}			
+		//**************Seccion para edicion de un viaje***********************//	
 			if (requestCode == REQUEST_CODE_EDIT_TRIP) {
 				Log.i(TAG, "REQUEST_CODE_EDIT_TRIP");
-				Log.i(TAG, "BORRAR VIAJE ANTIGUO " + resultCode + "-"+ requestCode);
-				Log.i(TAG, "ID del viaje ="+data.getExtras().getInt("TripId"));
-				int id=data.getExtras().getInt("TripId");
-				dbHelper.updateTravel(myNewTripInfo, id+1);//hay que incrementar la posición, empieza desde 1 y no 0			
-				adapter.remove(adapter.getItem((int) id));
-				setListAdapter(adapter);
+//					Log.i(TAG, "%%%%%%%%%%%%%%%%%%%%% ID del viaje ="+myNewTripInfo.getIdDB());
+				int id=myNewTripInfo.getIdDB();
+				dbHelper.updateTravel(myNewTripInfo, id);
+				// ## Obtenemos los datos de la base de datos
+		        ArrayList<TravelInfo> values = dbHelper.getTravelsList();
+		        // ## Creamos el adapter y lo asociamos a la activity
+		        adapter = new TravelAdapter(this, values);        
+		        setListAdapter(adapter);
 			}			
 		} else {
 			Log.i(TAG, "ACCIÓN CANCELADA " + resultCode + "-" + requestCode);
@@ -239,10 +247,10 @@ public class TravelListActivity extends ListActivity {
 	}// onCreateContextMenu()
 
 	/**
-	 * Generamos datos a mostrar. En una aplicacion funcional se tomarian de base
+	 * DEPRECATED!!-->Generamos datos a mostrar. En una aplicacion funcional se tomarian de base
 	 *  de datos o algun otro medio
 	 * @return
-	 */
+	 *
 	public ArrayList<TravelInfo> getTravelsList() {
 		Log.d(TAG, "getTravelsList");
 		ArrayList<TravelInfo> travels = new ArrayList<TravelInfo>();
@@ -264,7 +272,7 @@ public class TravelListActivity extends ListActivity {
 			c.close();
 		}
 		return travels;
-	}// getTravelsList()
+	}// getTravelsList()*/
     
 	/**
 	 * Genera las opciones de COMPARTIR,EDITAR,BORRAR.
@@ -279,8 +287,8 @@ public class TravelListActivity extends ListActivity {
 		} catch (ClassCastException e) {
 			return false;
 		}
-		long id = getListAdapter().getItemId(info.position);
-		Log.i(TAG, "ListView id = " + id + "---" + item.getTitle());
+		long row = getListAdapter().getItemId(info.position);
+		Log.i(TAG, "ListAdapter id = " + row + "---" + item.getTitle());
 
 		switch (item.getItemId()) {
 		case R.id.CtxLblOpc1:
@@ -290,8 +298,8 @@ public class TravelListActivity extends ListActivity {
 			sendIntent.setAction(Intent.ACTION_SEND);
 //DEL//			TravelInfo myTrip = adapter.getItem((int) id);
 			
-			TravelInfo myTrip = dbHelper.getTravelsList().get((int)id);
-			// ## Obtenemos los datos para incluirlos en el intent.
+			TravelInfo myTrip = dbHelper.getTravelsList().get((int)row);
+			// ## Obtenemos los datos para incluirlos en el intent.			
 			String cityResult = myTrip.getCity();
 			String countryResult = myTrip.getCountry();
 			Integer yearResult = myTrip.getYear();
@@ -313,15 +321,16 @@ public class TravelListActivity extends ListActivity {
 			//## Creamos el Intent para lanzar la Activity EditTravelActivity
 			Intent intent = new Intent(this, EditTravelActivity.class);
 //DEL//			TravelInfo myTrip4Edit = adapter.getItem((int) id);
-			TravelInfo myTrip4Edit = dbHelper.getTravelsList().get((int)id);
+			TravelInfo myTrip4Edit = dbHelper.getTravelsList().get((int)row);			
 			// ## Obtenemos los datos para incluirlos en el Intent
+			int idDB4edit = myTrip4Edit.getIdDB();
 			String cityResult4edit = myTrip4Edit.getCity();
 			String countryResult4edit = myTrip4Edit.getCountry();
 			Integer yearResult4edit = myTrip4Edit.getYear();
 			String noteResult4edit = myTrip4Edit.getNote();
-			Integer originalTripPosition = (int) id;
+			Integer originalTripPosition = idDB4edit;
 			if (noteResult4edit == null)
-				noteResult4edit = getResources().getString(R.string.emptyNote);
+				noteResult4edit = getResources().getString(R.string.emptyNote);			
 			intent.putExtra("SavedDataTripCity", cityResult4edit);
 			intent.putExtra("SavedDataTripCountry", countryResult4edit);
 			intent.putExtra("SavedDataTripYear", yearResult4edit);
@@ -334,9 +343,12 @@ public class TravelListActivity extends ListActivity {
 			return true;
 		case R.id.CtxLblOpc3:
 				Log.i(TAG, "Etiqueta: Opcion 3 pulsada!--BORRAR");
-				Log.i(TAG, "---Nro de viajes antes de BORRAR (DB): "+ dbHelper.getTravelsList().size());			
-			dbHelper.deleteTravel((int) id+1);//## hay que incrementar la posición, empieza desde 1 y no 0			
-			adapter.remove(adapter.getItem((int) id));
+				Log.i(TAG, "---Nro de viajes antes de BORRAR (DB): "+ dbHelper.getTravelsList().size());
+			//DEL//Log.w(TAG, "Recogemos el id para la BD:"+dbHelper.getTravelsList().indexOf(id));
+			TravelInfo myTrip4Delete = dbHelper.getTravelsList().get((int)row);
+			int idDB4delete=myTrip4Delete.getIdDB();
+			dbHelper.deleteTravel((int) idDB4delete);//## hay que incrementar la posicion, empieza desde 1 y no 0			
+			adapter.remove(adapter.getItem((int) row));
 			setListAdapter(adapter);
 				Log.i(TAG, "---ADAPTER despues de BORRAR en adapter: "+ adapter.getCount());			
 				Log.i(TAG, "---Numero de viajes despues de BORRAR (DB): "+ dbHelper.getTravelsList().size());
