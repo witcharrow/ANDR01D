@@ -22,7 +22,7 @@ public class TravelsProvider extends ContentProvider {
 	
 	private static final String TAG = "TravelsProvider -->";
 	private TravelsDatabaseHelper mDbHelper;
-	private static final String AUTHORITY = "es.alexmj.a_ud5_travellistv4";	
+	private static final String AUTHORITY = "es.alexmj.travellist";	
 	public static final Uri CONTENT_URI = Uri.parse("content://" + AUTHORITY + "/travels");
 	private static final int URI_TRAVELS = 1;
 	private static final int URI_TRAVEL_ITEM = 2;	
@@ -46,7 +46,8 @@ public class TravelsProvider extends ContentProvider {
 	}// onCreate()
 
 	/**
-	 * Obtiene la base de datos, e inserta la tabla con los viajes en ella.
+	 * Se encarga de introducir una nueva información en la BBDD. Si tiene exito,
+	 *  debe devolver la URI que representa al recurso que acaba de ser aniadido.
 	 * @see android.content.ContentProvider#insert(android.net.Uri, android.content.ContentValues)
 	 */
 	@Override
@@ -54,7 +55,7 @@ public class TravelsProvider extends ContentProvider {
 		Log.d(TAG, "insert");
 		SQLiteDatabase db = mDbHelper.getWritableDatabase();		
 		long id = db.insert(TravelsDatabaseHelper.TABLE_NAME, null, values);
-		Log.i(TAG,"id = "+id);
+		Log.w(TAG,"id = "+id);
 		Uri result = null;		
 		if (id >= 0){
 			result = ContentUris.withAppendedId(CONTENT_URI, id);
@@ -117,14 +118,14 @@ public class TravelsProvider extends ContentProvider {
 	}
 
 	/**
-	 * Obtiene el tipo del URI, en funcion si es todos los viajes o un item viaje solo. 
+	 * Obtiene el tipo del URI, en funcion si es todos los viajes o un item viaje solo.
+	 *  Para conocer el MIME Type de los datos devueltos por el provider. 
 	 * @see android.content.ContentProvider#getType(android.net.Uri)
 	 */
 	@Override
 	public String getType(Uri uri) {
 		Log.d(TAG, "getType");
-		int match = mUriMatcher.match(uri);
-		
+		int match = mUriMatcher.match(uri);		
 		switch (match){
 		case URI_TRAVELS:
 			return "vnd.android.cursor.dir/vnd.example.travels";

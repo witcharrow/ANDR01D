@@ -34,7 +34,7 @@
         
         <provider
             android:name=".data.TravelsProvider"
-            android:authorities="es.alexmj.a_ud5_travellistv4"
+            android:authorities="es.alexmj.travellist"
             android:multiprocess="true"
             android:exported="false"
             />        
