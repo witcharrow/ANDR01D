@@ -2,10 +2,14 @@ package es.alexmj.travellist;
 
 
 import java.util.ArrayList;
+
+import es.alexmj.travellist.data.TravelsConstants;
 import es.alexmj.travellist.data.TravelsDatabaseHelper;
+import es.alexmj.travellist.data.TravelsProvider;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -119,8 +123,10 @@ public class TravelListActivity extends ListActivity {
     	Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);        
         dbHelper = new TravelsDatabaseHelper(this);
-        // ## Obtenemos los datos de la base de datos
-        ArrayList<TravelInfo> values = dbHelper.getTravelsList();
+        // ## Obtenemos los datos de la base de datos -- VERSION 3
+        //ArrayList<TravelInfo> values = dbHelper.getTravelsList();
+        // ## Obtenemos los datos de la base de datos -- VERSION 4
+        ArrayList<TravelInfo> values = getTravelsList();
         // ## Creamos el adapter y lo asociamos a la activity
         adapter = new TravelAdapter(this, values);        
         setListAdapter(adapter);        
@@ -247,32 +253,36 @@ public class TravelListActivity extends ListActivity {
 	}// onCreateContextMenu()
 
 	/**
-	 * DEPRECATED!!-->Generamos datos a mostrar. En una aplicacion funcional se tomarian de base
-	 *  de datos o algun otro medio
-	 * @return
-	 *
+     * Obtiene los datos de la tabla de la BBDD y los almacena en una lista.
+     *  Lo utilizamos en la VERSION 4 de la app.
+     * @return lista de viajes
+     */
 	public ArrayList<TravelInfo> getTravelsList() {
 		Log.d(TAG, "getTravelsList");
 		ArrayList<TravelInfo> travels = new ArrayList<TravelInfo>();
 		Cursor c = getContentResolver().query(TravelsProvider.CONTENT_URI,
-				null, null, null, Travels.YEAR);
+				null, null, null, TravelsConstants.YEAR+" DESC");
 		if (c != null && c.moveToFirst()) {
-			int cityIndex = c.getColumnIndex(Travels.CITY);
-			int countryIndex = c.getColumnIndex(Travels.COUNTRY);
-			int yearIndex = c.getColumnIndex(Travels.YEAR);
-			int noteIndex = c.getColumnIndex(Travels.NOTE);
+			int idDBIndex = c.getColumnIndex(TravelsConstants._ID);
+			int cityIndex = c.getColumnIndex(TravelsConstants.CITY);
+			int countryIndex = c.getColumnIndex(TravelsConstants.COUNTRY);
+			int yearIndex = c.getColumnIndex(TravelsConstants.YEAR);
+			int noteIndex = c.getColumnIndex(TravelsConstants.NOTE);
 			do {
+				int idDB = c.getInt(idDBIndex);
 				String city = c.getString(cityIndex);
 				String country = c.getString(countryIndex);
 				int year = c.getInt(yearIndex);
 				String note = c.getString(noteIndex);
-				TravelInfo travel = new TravelInfo(city, country, year, note);
+					Log.i(TAG,"%%%%%%%%%%%%%%%%%%%%% idDB="+idDB);
+				TravelInfo travel = new TravelInfo(idDB, city, country, year, note);
 				travels.add(travel);
 			} while (c.moveToNext());
 			c.close();
 		}
+    	Log.i(TAG, "Nro de viajes en DB: "+ travels.size());
 		return travels;
-	}// getTravelsList()*/
+	}// getTravelsList()
     
 	/**
 	 * Genera las opciones de COMPARTIR,EDITAR,BORRAR.

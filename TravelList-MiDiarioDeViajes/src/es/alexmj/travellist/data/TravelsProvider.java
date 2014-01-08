@@ -1,6 +1,9 @@
 package es.alexmj.travellist.data;
 
 
+import java.util.Arrays;
+import java.util.HashSet;
+
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -9,7 +12,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.provider.BaseColumns;
+import android.text.TextUtils;
 import android.util.Log;
 
 /**
@@ -73,8 +76,12 @@ public class TravelsProvider extends ContentProvider {
 			String[] selectionArgs, String sortOrder) {		
 		Log.d(TAG, "query");
 		SQLiteDatabase db = mDbHelper.getReadableDatabase();		
-		int match = mUriMatcher.match(uri);
+		int match = mUriMatcher.match(uri);		
 		SQLiteQueryBuilder qBuilder = new SQLiteQueryBuilder();
+		
+		//?? check if the caller has requested a column which does not exists
+	    checkColumns(projection);
+		
 		qBuilder.setTables(TravelsDatabaseHelper.TABLE_NAME);		
 		switch (match){
 		case URI_TRAVELS:
@@ -82,13 +89,15 @@ public class TravelsProvider extends ContentProvider {
 			break;
 		case URI_TRAVEL_ITEM:
 			String id = uri.getPathSegments().get(1);
-			qBuilder.appendWhere(Travels._ID + "=" + id);
+			qBuilder.appendWhere(TravelsConstants._ID + "=" + id);
 			break;
 		default:
 			Log.w(TAG, "Uri didn't match: " + uri);
 			throw new IllegalArgumentException("Unknown URI: " + uri);
 		}		
-		Cursor c = qBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);		
+		Cursor c = qBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
+		//?? make sure that potential listeners are getting notified
+	    c.setNotificationUri(getContext().getContentResolver(), uri);
 		return c;
 	}// query()
 	
@@ -100,9 +109,30 @@ public class TravelsProvider extends ContentProvider {
 	public int update(Uri uri, ContentValues values, String selection,
 			String[] selectionArgs) {
 		Log.d(TAG, "update");
-		// TODO Auto-generated method stub
-		
-		return 0;
+		int uriType = mUriMatcher.match(uri);
+		SQLiteDatabase sqlDB = mDbHelper.getWritableDatabase();
+		int rowsUpdated = 0;
+		switch (uriType) {
+		case URI_TRAVELS:
+			rowsUpdated = sqlDB.update(TravelsDatabaseHelper.TABLE_NAME, values, selection,
+					selectionArgs);
+			break;
+		case URI_TRAVEL_ITEM:
+			String id = uri.getLastPathSegment();
+			if (TextUtils.isEmpty(selection)) {
+				rowsUpdated = sqlDB.update(TravelsDatabaseHelper.TABLE_NAME, values,
+						TravelsConstants._ID + "=" + id, null);
+			} else {
+				rowsUpdated = sqlDB.update(TravelsDatabaseHelper.TABLE_NAME, values,
+						TravelsConstants._ID + "=" + id + " and " + selection,
+						selectionArgs);
+			}
+			break;
+		default:
+			throw new IllegalArgumentException("Unknown URI: " + uri);
+		}
+		getContext().getContentResolver().notifyChange(uri, null);
+		return rowsUpdated;
 	}// update()
 
 	/**
@@ -112,9 +142,31 @@ public class TravelsProvider extends ContentProvider {
 	@Override
 	public int delete(Uri uri, String selection, String[] selectionArgs) {
 		Log.d(TAG, "delete");
-		// TODO Auto-generated method stub
-		
-		return 0;
+		int uriType = mUriMatcher.match(uri);
+		SQLiteDatabase sqlDB = mDbHelper.getWritableDatabase();
+		int rowsDeleted = 0;
+		switch (uriType) {
+		case URI_TRAVELS:
+			rowsDeleted = sqlDB.delete(TravelsDatabaseHelper.TABLE_NAME,
+					selection, selectionArgs);
+			break;
+		case URI_TRAVEL_ITEM:
+			String id = uri.getLastPathSegment();
+			Log.i(TAG,"Id to delete in Provider: "+id);
+			if (TextUtils.isEmpty(selection)) {
+				rowsDeleted = sqlDB.delete(TravelsDatabaseHelper.TABLE_NAME,
+						TravelsConstants._ID + "=" + id, null);
+			} else {
+				rowsDeleted = sqlDB.delete(TravelsDatabaseHelper.TABLE_NAME,
+						TravelsConstants._ID + "=" + id + " and " + selection,
+						selectionArgs);
+			}
+			break;
+		default:
+			throw new IllegalArgumentException("Unknown URI: " + uri);
+		}
+		getContext().getContentResolver().notifyChange(uri, null);
+		return rowsDeleted;
 	}
 
 	/**
@@ -144,35 +196,25 @@ public class TravelsProvider extends ContentProvider {
 	protected void notifyChange(Uri uri) {
 		Log.d(TAG, "notifyChange");
         getContext().getContentResolver().notifyChange(uri, null);
-    }// notifyChange()
+	}// notifyChange()
+
 	
-	/**
-	 * Clase de constantes con la informacion de la base de datos: ciudad,pais,anio y notas.
-	 *
-	 */
-	public class Travels implements BaseColumns {
-		/**
-		 * The city of the travel
-		 * <P>Type: TEXT</P>
-		 */
-		public static final String CITY = "city";
-		
-		/**
-		 * The country of the travel
-		 * <P>Type: TEXT</P>
-		 */
-		public static final String COUNTRY = "country";
-
-		/**
-		 * The year of the travel
-		 * <P>Type: NUMBER</P>
-		 */
-		public static final String YEAR = "year";
-
-		/**
-		 * The note
-		 * <P>Type: TEXT</P>
-		 */
-		public static final String NOTE = "notes";
-	}	
+	
+	private void checkColumns(String[] projection) {
+		Log.d(TAG, "checkColumns");
+		String[] available = { TravelsConstants._ID, TravelsConstants.CITY,
+				TravelsConstants.COUNTRY, TravelsConstants.YEAR,
+				TravelsConstants.NOTE };
+		if (projection != null) {
+			HashSet<String> requestedColumns = new HashSet<String>(
+					Arrays.asList(projection));
+			HashSet<String> availableColumns = new HashSet<String>(
+					Arrays.asList(available));
+			// check if all columns which are requested are available
+			if (!availableColumns.containsAll(requestedColumns)) {
+				throw new IllegalArgumentException(
+						"Unknown columns in projection");
+			}
+		}// checkColumns()
+	}
 }

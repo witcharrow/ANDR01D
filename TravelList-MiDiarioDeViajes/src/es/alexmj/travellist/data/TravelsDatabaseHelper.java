@@ -93,10 +93,11 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
 		Integer year=Integer.valueOf(res.getString(R.string.yearResult));
 		String note=res.getString(R.string.noteResult);
 		insertTravel(db, city, country, year, note);
-	}
+	}// initialData()
 	
 	/**
-     * Generamos datos a mostrar.
+     * Obtiene los datos de la tabla de la BBDD y los almacena en una lista.
+     *  Lo utilizamos en la VERSION 3 de la app.
      * @return lista de viajes
      */
     public ArrayList<TravelInfo> getTravelsList(){ 
@@ -117,16 +118,15 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
     			int year = c.getInt(yearIndex);
     			String note = c.getString(noteIndex);
 //    				Log.i(TAG,"%%%%%%%%%%%%%%%%%%%%% idDB="+idDB);
-    			TravelInfo travel = new TravelInfo(idDB,city, country, year, note);    			
+    			TravelInfo travel = new TravelInfo(idDB, city, country, year, note);    			
     			travels.add(travel);    			
     		} while (c.moveToNext());    		
     		c.close();
     	}
     	Log.i(TAG, "Nro de viajes en DB: "+ travels.size());
         return travels;
-    }
-    
-    
+    }// getTravelsList()
+        
     /**
      * Anyadimos un viaje a nuestra BBDD.
 	 * @param db es la BBDD
@@ -144,7 +144,6 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
 		values.put(TravelsConstants.NOTE, note);		
 		db.insert(TABLE_NAME, null, values);		
 	}// insertTravel()
-
 	
     /**
      * Actualizamos un viaje que ya se encuentra en la BBDD
@@ -162,7 +161,7 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
         // ##updating row
         return db.update(TABLE_NAME, values, TravelsConstants._ID + " = ?",
                 new String[] { String.valueOf(positionId) });        
-    }// updateTravel
+    }// updateTravel()
     
     /**
      * Borramos un viaje. El id se obtiene del valor que esta almacenado en la base de datos. 
@@ -175,5 +174,5 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
         int result=db.delete(TABLE_NAME, TravelsConstants._ID + " = ?",
                 new String[] { String.valueOf(positionId) });
         Log.i(TAG, "##number of rows afected: "+ result); 
-    }
+    }// deleteTravel()
 }
