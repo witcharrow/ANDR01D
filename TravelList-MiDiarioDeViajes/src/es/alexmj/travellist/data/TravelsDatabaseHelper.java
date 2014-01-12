@@ -175,4 +175,29 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
                 new String[] { String.valueOf(positionId) });
         Log.i(TAG, "##number of rows afected: "+ result); 
     }// deleteTravel()
+    
+	/**
+	 * Obtiene el id con mayor valor de la tabla de nuestra BD.
+	 * @return el valor del id mas grande dentro de la tabla
+	 */
+	public int getLastId() {
+		Log.d(TAG, "getLastId");
+	    //## openDB();
+	    SQLiteDatabase sqlDB = this.getReadableDatabase();
+	    int id = 0;
+	    final String MY_QUERY = "SELECT MAX(_id) AS _id FROM "+TABLE_NAME;
+	    Cursor mCursor = sqlDB.rawQuery(MY_QUERY, null);  
+	    try {
+	          if (mCursor.getCount() > 0) {
+	            mCursor.moveToFirst();
+	            id = mCursor.getInt(0);//there's only 1 column in cursor since you only get MAX, not dataset
+	          }
+	        } catch (Exception e) {
+	          System.out.println(e.getMessage());
+	        } finally {
+	            //## closeDB();
+	        	sqlDB.close();
+	        }
+	    return id;
+	}// getLastId()
 }
