@@ -7,10 +7,15 @@ import es.alexmj.travellist.data.TravelsConstants;
 import es.alexmj.travellist.data.TravelsDatabaseHelper;
 import es.alexmj.travellist.data.TravelsProvider;
 import android.app.ListActivity;
+//import android.content.ContentResolver;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+//import android.support.v4.widget.ResourceCursorAdapter;
+//import android.widget.ResourceCursorAdapter;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -59,6 +64,13 @@ public class TravelListActivity extends ListActivity {
 	// ##VERSION 3: Database
 	private static TravelsDatabaseHelper dbHelper;
 	private TravelAdapter adapter;
+	
+	
+	// ##VERSION 4: TravelsCursorAdapter
+	private Uri newTravelUri;
+	//private TravelsCursorAdapter mAdapter;	
+	//private static final String[] PROJECTION = {TravelsConstants._ID, TravelsConstants.CITY, 
+	//TravelsConstants.COUNTRY, TravelsConstants.YEAR, TravelsConstants.NOTE};
 
 	/**
 	 * Adapter que contiene la lista con los viajes del diario.
@@ -102,6 +114,40 @@ public class TravelListActivity extends ListActivity {
 		}// getView()		
 	}
 	
+	/**	
+	final class TravelsCursorAdapter extends ResourceCursorAdapter {
+
+		private LayoutInflater mInflater;
+		
+		public TravelsCursorAdapter(Context context, Cursor c) {
+			super(context, android.R.layout.simple_list_item_2, c, 0);
+			mInflater=LayoutInflater.from(context);
+		}
+
+		public View newView (Context context, Cursor cursor, ViewGroup parent){
+			//## En el metodo newView creamos la vista y el holder y lo almacenamos en el tag
+			View view = mInflater.inflate(android.R.layout.simple_list_item_2, parent);
+			ViewHolder holder = new ViewHolder();
+			TextView textView1 = (TextView) view.findViewById(android.R.id.text1);
+			TextView textView2 = (TextView) view.findViewById(android.R.id.text2);
+			holder.text1 = textView1;
+			holder.text2 = textView2;
+			view.setTag(holder);
+			return view;
+			
+		}
+		@Override
+		public void bindView(View v, Context context, Cursor c) {
+			//## En el metodo bindView recuperamos el Holder y asignamos los datos a las vistas
+			ViewHolder holder = (ViewHolder) v.getTag();
+			String city = c.getString(c.getColumnIndex(TravelsConstants.CITY));
+			String country = " ("+c.getString(c.getColumnIndex(TravelsConstants.COUNTRY))+")";
+			String year = "Año "+c.getInt(c.getColumnIndex(TravelsConstants.YEAR));
+			holder.text1.setText(city+country);
+			holder.text2.setText(year);		
+		}
+	}*/
+	
 	/**
 	 * Vista para cada elemento de la lista.
 	 * @author Alejandro.Marijuan
@@ -123,19 +169,27 @@ public class TravelListActivity extends ListActivity {
     	Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);        
         dbHelper = new TravelsDatabaseHelper(this);
-        // ## Obtenemos los datos de la base de datos -- VERSION 3
-        //ArrayList<TravelInfo> values = dbHelper.getTravelsList();
-        // ## Obtenemos los datos de la base de datos -- VERSION 4
+	    // ## Obtenemos los datos de la base de datos -- VERSION 4 sin adapter
         ArrayList<TravelInfo> values = getTravelsList();
-        // ## Creamos el adapter y lo asociamos a la activity
-        adapter = new TravelAdapter(this, values);        
-        setListAdapter(adapter);        
+		//## Creamos el adapter y lo asociamos a la activity
+		adapter = new TravelAdapter(this, values);
+		setListAdapter(adapter);
+		
+/**VERSION 4: TravelsCursorAdapter
+ 		        
+        ContentResolver cr = getContentResolver();        
+        //## Hacemos la consulta
+        Cursor c = cr.query(TravelsProvider.CONTENT_URI,PROJECTION, null, null, TravelsConstants.YEAR+" DESC");
+        //## y Construimos el Adapter con el cursor                
+        mAdapter = new TravelsCursorAdapter(this,c);
+        setListAdapter(mAdapter);
+**/        
         // ## Para devolver el resultado a la EditTravelActivity
 		Intent returnIntent = new Intent();
 		returnIntent.putExtra("result", result);
 		setResult(RESULT_OK, returnIntent);
 		// ## Asociamos los menús contextuales a los controles
-		registerForContextMenu(getListView());
+		registerForContextMenu(getListView());		
     }// onCreate()
     
     /**
@@ -173,17 +227,17 @@ public class TravelListActivity extends ListActivity {
 	@Override
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		Log.d(TAG, "onListItemClick");
-		// ##Tomamos la informacion del viaje seleccionado
+		//## Tomamos la informacion del viaje seleccionado
 		TravelInfo info = adapter.getItem(position);
-		// ##Creamos el Intent para lanzar la Activity TravelActivity
+		//## Creamos el Intent para lanzar la Activity TravelActivity
 		Intent intent = new Intent(this, TravelActivity.class);
-		// ##Aniadimos como extras los datos que consideremos necesarios para la
-		// Activity a lanzar
+		//## Aniadimos como extras los datos que consideremos necesarios para la
+		//## Activity a lanzar
 		intent.putExtra(TravelInfo.EXTRA_CITY, info.getCity());
 		intent.putExtra(TravelInfo.EXTRA_COUNTRY, info.getCountry());
 		intent.putExtra(TravelInfo.EXTRA_YEAR, info.getYear());
 		intent.putExtra(TravelInfo.EXTRA_NOTE, info.getNote());
-		// ##Lanzamos la Activity con el Intent creado a TravelActivity
+		//## Lanzamos la Activity con el Intent creado a TravelActivity
 		startActivity(intent);
 		super.onListItemClick(l, v, position, id);
 	}// onListItemClick()
@@ -197,14 +251,17 @@ public class TravelListActivity extends ListActivity {
 		Log.d(TAG, "onActivityResult");
 		super.onActivityResult(requestCode, resultCode, data);
 		boolean newTripToAdd=false;
+		int myBiggestID=0;
 		//**************Seccion para un nuevo viaje***********************//		
-		if (resultCode == RESULT_OK	&& data.getExtras().containsKey("myTripEdited")) {
-			Log.i(TAG, "RESULT_OK");
-			String[] resultsTrip = data.getExtras().getStringArray("myTripEdited");
+		if (resultCode == RESULT_OK	&& data.getExtras().containsKey("myTripCreated")) {
+			Log.i(TAG, "RESULT_OK -- Nuevo viaje!");
+			String[] resultsTrip = data.getExtras().getStringArray("myTripCreated");
 			int myNewTripID=Integer.valueOf(resultsTrip[0]);
-			if(myNewTripID==0){
-				myNewTripID=dbHelper.getTravelsList().size()+1;
-//					Log.i(TAG,"%%%%%%%%%%%%%%%%%%%%% CHANGE idTrip with:"+myNewTripID);
+			if(myNewTripID==0){				
+				//## Obtener el id mas grande de la BD y sumarle 1
+					myBiggestID=dbHelper.getLastId()+1;
+					Log.w(TAG,"##################### CHANGE idTrip with:"+myBiggestID);
+					myNewTripID=myBiggestID;
 				newTripToAdd=true;
 			}
 			String myNewTripCity = resultsTrip[1];
@@ -215,22 +272,38 @@ public class TravelListActivity extends ListActivity {
 					myNewTripCountry, myNewTripYear, myNewTripNote);			
 			if(newTripToAdd){
 				Log.i(TAG, "Añadimos al adapter la info del viaje");
-				adapter.add(myNewTripInfo);
-				dbHelper.insertTravel(dbHelper.getWritableDatabase(), myNewTripCity, myNewTripCountry, myNewTripYear, myNewTripNote);
-			}			
-		//**************Seccion para edicion de un viaje***********************//	
+			    ContentValues valuesNewTrip = new ContentValues();
+			    valuesNewTrip.put(TravelsConstants._ID, myNewTripID);
+			    valuesNewTrip.put(TravelsConstants.CITY, myNewTripCity);
+			    valuesNewTrip.put(TravelsConstants.COUNTRY, myNewTripCountry);
+			    valuesNewTrip.put(TravelsConstants.YEAR, myNewTripYear);
+			    valuesNewTrip.put(TravelsConstants.NOTE, myNewTripNote);
+
+			    if (newTravelUri == null) {
+			      //## Nuevo viaje
+			    	newTravelUri = getContentResolver().insert(TravelsProvider.CONTENT_URI, valuesNewTrip);
+			    	adapter.add(myNewTripInfo);
+			    }
+			  }
+			//**************Seccion para edicion de un viaje***********************//	
 			if (requestCode == REQUEST_CODE_EDIT_TRIP) {
-				Log.i(TAG, "REQUEST_CODE_EDIT_TRIP");
-//					Log.i(TAG, "%%%%%%%%%%%%%%%%%%%%% ID del viaje ="+myNewTripInfo.getIdDB());
-				int id=myNewTripInfo.getIdDB();
-				dbHelper.updateTravel(myNewTripInfo, id);
-				// ## Obtenemos los datos de la base de datos
-		        ArrayList<TravelInfo> values = dbHelper.getTravelsList();
-		        // ## Creamos el adapter y lo asociamos a la activity
-		        adapter = new TravelAdapter(this, values);        
-		        setListAdapter(adapter);
-			}			
-		} else {
+				Log.i(TAG, "REQUEST_CODE_EDIT_TRIP: Viaje Editado!");
+				Log.w(TAG, "info del Viaje Editado:"+myNewTripID+"-"+myNewTripCity+"("+myNewTripCountry+"),"+myNewTripYear+"--"+myNewTripNote);
+				
+				ContentValues valuesTripEdited = new ContentValues();
+				valuesTripEdited.put(TravelsConstants.CITY, myNewTripCity);
+				valuesTripEdited.put(TravelsConstants.COUNTRY, myNewTripCountry);
+				valuesTripEdited.put(TravelsConstants.YEAR, myNewTripYear);
+				valuesTripEdited.put(TravelsConstants.NOTE, myNewTripNote);
+				//## Update viaje en el Provider
+				getContentResolver().update(TravelsProvider.CONTENT_URI, valuesTripEdited, TravelsConstants._ID+"="+myNewTripID, null);
+				//## Obtenemos los datos del resto de viajes
+				ArrayList<TravelInfo> listOfTravels = getTravelsList();
+ 				adapter = new TravelAdapter(this, listOfTravels);        
+				setListAdapter(adapter);
+			}
+		}
+		else {
 			Log.i(TAG, "ACCIÓN CANCELADA " + resultCode + "-" + requestCode);
 		}
 
@@ -260,8 +333,8 @@ public class TravelListActivity extends ListActivity {
 	public ArrayList<TravelInfo> getTravelsList() {
 		Log.d(TAG, "getTravelsList");
 		ArrayList<TravelInfo> travels = new ArrayList<TravelInfo>();
-		Cursor c = getContentResolver().query(TravelsProvider.CONTENT_URI,
-				null, null, null, TravelsConstants.YEAR+" DESC");
+//		Cursor c = getContentResolver().query(TravelsProvider.CONTENT_URI,null, null, null, TravelsConstants.YEAR+" DESC");
+		Cursor c = getContentResolver().query(TravelsProvider.CONTENT_URI,null, null, null, null);
 		if (c != null && c.moveToFirst()) {
 			int idDBIndex = c.getColumnIndex(TravelsConstants._ID);
 			int cityIndex = c.getColumnIndex(TravelsConstants.CITY);
@@ -306,8 +379,6 @@ public class TravelListActivity extends ListActivity {
 			//## Creamos el Intent para lanzar la Activity que permita compartir el viaje
 			Intent sendIntent = new Intent();
 			sendIntent.setAction(Intent.ACTION_SEND);
-//DEL//			TravelInfo myTrip = adapter.getItem((int) id);
-			
 			TravelInfo myTrip = dbHelper.getTravelsList().get((int)row);
 			// ## Obtenemos los datos para incluirlos en el intent.			
 			String cityResult = myTrip.getCity();
@@ -330,7 +401,6 @@ public class TravelListActivity extends ListActivity {
 			Log.i(TAG, "Etiqueta: Opcion 2 pulsada!--EDITAR");
 			//## Creamos el Intent para lanzar la Activity EditTravelActivity
 			Intent intent = new Intent(this, EditTravelActivity.class);
-//DEL//			TravelInfo myTrip4Edit = adapter.getItem((int) id);
 			TravelInfo myTrip4Edit = dbHelper.getTravelsList().get((int)row);			
 			// ## Obtenemos los datos para incluirlos en el Intent
 			int idDB4edit = myTrip4Edit.getIdDB();
@@ -354,10 +424,11 @@ public class TravelListActivity extends ListActivity {
 		case R.id.CtxLblOpc3:
 				Log.i(TAG, "Etiqueta: Opcion 3 pulsada!--BORRAR");
 				Log.i(TAG, "---Nro de viajes antes de BORRAR (DB): "+ dbHelper.getTravelsList().size());
-			//DEL//Log.w(TAG, "Recogemos el id para la BD:"+dbHelper.getTravelsList().indexOf(id));
 			TravelInfo myTrip4Delete = dbHelper.getTravelsList().get((int)row);
 			int idDB4delete=myTrip4Delete.getIdDB();
-			dbHelper.deleteTravel((int) idDB4delete);//## hay que incrementar la posicion, empieza desde 1 y no 0			
+				Log.i(TAG, "---idDB4delete: "+ idDB4delete);			
+			Uri uri = Uri.parse(TravelsProvider.CONTENT_URI + "/" + idDB4delete);
+			getContentResolver().delete(uri, null, null);
 			adapter.remove(adapter.getItem((int) row));
 			setListAdapter(adapter);
 				Log.i(TAG, "---ADAPTER despues de BORRAR en adapter: "+ adapter.getCount());			
@@ -366,5 +437,5 @@ public class TravelListActivity extends ListActivity {
 		default:
 			return super.onContextItemSelected(item);
 		}
-	}// onContextItemSelected()	
+	}// onContextItemSelected()
 }

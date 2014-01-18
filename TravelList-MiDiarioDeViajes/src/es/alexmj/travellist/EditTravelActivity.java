@@ -102,15 +102,15 @@ DatePickerDialog.OnDateSetListener {
 										   mCountry.getText().toString(),
 										   Integer.valueOf(mYear).toString(),
 										   mNote.getText().toString()};
-					Intent myTripEdited = getIntent();
+					Intent myTripCreated = getIntent();
 					Log.i(TAG,"setOnClickListener --> "
 							+ idTrip + " "
 							+ mCity.getText().toString() + "("
 							+ mCountry.getText().toString() + ")" + ",Año: "
 							+ Integer.valueOf(mYear).toString() + ",Nota: "
 							+ mNote.getText().toString());					
-					myTripEdited.putExtra("myTripEdited", resultsTrip);					
-					setResult(RESULT_OK,myTripEdited);
+					myTripCreated.putExtra("myTripCreated", resultsTrip);					
+					setResult(RESULT_OK,myTripCreated);
 					finish();
 				}
 			}

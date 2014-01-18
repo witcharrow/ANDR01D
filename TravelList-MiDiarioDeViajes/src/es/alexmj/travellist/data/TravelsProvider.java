@@ -200,6 +200,9 @@ public class TravelsProvider extends ContentProvider {
 
 	
 	
+	/**
+	 * @param projection
+	 */
 	private void checkColumns(String[] projection) {
 		Log.d(TAG, "checkColumns");
 		String[] available = { TravelsConstants._ID, TravelsConstants.CITY,
@@ -215,6 +218,8 @@ public class TravelsProvider extends ContentProvider {
 				throw new IllegalArgumentException(
 						"Unknown columns in projection");
 			}
-		}// checkColumns()
-	}
+		}
+	}// checkColumns()	
+	
+
 }
