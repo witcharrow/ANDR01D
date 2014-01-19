@@ -30,6 +30,7 @@ import es.alexmj.travellist.data.TravelsProvider;
  * VERSION 2: incluye ahora funcionalidad para pasar realizar operaciones CRUD con cada viaje. 
  * VERSION 3: Se aniade una nueva Base de datos para almacenar los viajes. No afecta a esta Activity. 
  * VERSION 4: Aniadimos un provider para trabajar con la base de datos.
+ * VERSION 5: Aniadimos opciones desde ActionBar.
  * 
  * @author Alejandro.Marijuan@googlemail.com
  *
@@ -75,7 +76,7 @@ public class TravelActivity extends Activity {
 		BUNDLE_YEAR = intent.getExtras().getInt(TravelInfo.EXTRA_YEAR);
 		BUNDLE_NOTE = intent.getExtras().getString(TravelInfo.EXTRA_NOTE);
 
-		Log.w(TAG,"("+BUNDLE_ID+")"+BUNDLE_CITY+","+BUNDLE_COUNTRY+",("+BUNDLE_YEAR+"),"+ BUNDLE_NOTE );
+		Log.i(TAG,"("+BUNDLE_ID+")"+BUNDLE_CITY+","+BUNDLE_COUNTRY+",("+BUNDLE_YEAR+"),"+ BUNDLE_NOTE );
 
 		mCity = (TextView) findViewById(R.id.cityResult);
 		mCity.setText(BUNDLE_CITY);
@@ -113,6 +114,7 @@ public class TravelActivity extends Activity {
 	/**
 	 * Crea el menu de opciones en la Activity que muestra los datos de un viaje guardado,
 	 *  muestra unicamente la opcion de compartir dicho viaje.
+	 * VERSION 5: Aniadimos opciones desde ActionBar, mostrando una alerta al borrar viaje.
 	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
 	 */
 	@Override
@@ -203,7 +205,6 @@ public class TravelActivity extends Activity {
 			startActivity(Intent.createChooser(sendIntent, getResources()
 					.getText(R.string.send_to)));
 			break;
-/**VERSION 5**/	
 		case R.id.menu_edit_travel:
 			Log.i(TAG, "Etiqueta: Opcion EDITAR pulsada!");
 			//## Creamos el Intent para lanzar la Activity EditTravelActivity
@@ -239,7 +240,6 @@ public class TravelActivity extends Activity {
 			startActivity(intentDelete);
 			
 			return true;			
-/**FIN VERSION 5**/			
 		default:
 			break;
 		}

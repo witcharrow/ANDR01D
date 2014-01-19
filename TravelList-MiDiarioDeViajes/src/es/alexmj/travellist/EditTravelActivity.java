@@ -21,6 +21,7 @@ import android.app.DatePickerDialog;
  * 			  borrar un viaje y reemplazarlo por uno nuevo, aniadimos funcionalidad de update. 
  * VERSION 4: Aniadimos un provider para trabajar con la base de datos. Se aniade control por
  * 			  id de cada viaje.
+ * VERSION 5: Aniadimos opciones desde ActionBar.
  * 
  * @author Alejandro.Marijuan@googlemail.com
  *
@@ -48,10 +49,8 @@ DatePickerDialog.OnDateSetListener {
 	private EditText mNote;
 	private boolean trip4edit=false;
 	private Integer yearResult4edit=0;
-	//v4//private int idDBResult4edit;
-	
-/**VERSION 5**/
 	private int idDBResult4edit;
+	
 	
 	/**
 	 * Operaciones para seleccionar los datos.
@@ -78,7 +77,6 @@ DatePickerDialog.OnDateSetListener {
 		Intent myTripEdited = getIntent();	
 		Bundle extrasFromTrip4edit = myTripEdited.getExtras();		
 		if (extrasFromTrip4edit != null) {
-			//v4//idDBResult4edit = extrasFromTrip4edit.getInt("TripId");
 			idDBResult4edit = extrasFromTrip4edit.getInt("SavedDataTripID");
 //				Log.i(TAG,"%%%%%%%%%%%%%%%%%%%%% idDBResult4edit:"+idDBResult4edit);
 			String cityResult4edit = extrasFromTrip4edit.getString("SavedDataTripCity");
