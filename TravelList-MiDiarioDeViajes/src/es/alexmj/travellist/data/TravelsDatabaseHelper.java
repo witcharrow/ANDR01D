@@ -201,25 +201,17 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
 	    return id;
 	}// getLastId()
 	
+	/**
+	 * Obtiene la informacion de un viaje almacenado en la base de datos.
+	 * @param idTravel para obtener el viaje de la BD
+	 * @return la informacion completa del viaje
+	 */
 	public TravelInfo getTravelInfo(int idTravel){		
 	    //## openDB();
 	    SQLiteDatabase sqlDB = this.getReadableDatabase();
-	    TravelInfo getTravelInfo;
 	    final String MY_QUERY = "SELECT * FROM "+TABLE_NAME+" WHERE _id = "+idTravel;
 	    Log.d(TAG, "getTravelInfo: "+MY_QUERY);
-	    Cursor mCursor = sqlDB.rawQuery(MY_QUERY, null);  
-//	    try {
-//	          if (mCursor.getCount() > 0) {
-//	            mCursor.moveToFirst();
-//	            myTripInfo = mCursor.getString(columnIndex)(0);//there's only 1 column in cursor since you only get MAX, not dataset
-//	          }
-//	        } catch (Exception e) {
-//	          System.out.println(e.getMessage());
-//	        } finally {
-//	            //## closeDB();
-//	        	sqlDB.close();
-//	        }
-//	    
+	    Cursor mCursor = sqlDB.rawQuery(MY_QUERY, null);   
 	    int idDB = 0;
 		String city = null;
 		String country = null;
@@ -238,11 +230,11 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
     			year = mCursor.getInt(yearIndex);
     			note = mCursor.getString(noteIndex);
     				Log.i(TAG,"%%%%%%%%%%%%%%%%%%%%% idDB="+idDB);
-    			    			
-    			    			
     		} while (mCursor.moveToNext());    		
     		mCursor.close();
     	}
+	    //## closeDB();
+    	sqlDB.close();
 	    TravelInfo travel = new TravelInfo(idDB, city, country, year, note);
 	    return travel;
 	}// getTravelInfo()
