@@ -1,21 +1,26 @@
 package es.alexmj.travellist;
 
-import es.alexmj.travellist.data.TravelsConstants;
-import es.alexmj.travellist.data.TravelsDatabaseHelper;
-import es.alexmj.travellist.data.TravelsProvider;
 import android.app.ActionBar;
 import android.app.Activity;
-import android.content.ContentResolver;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
+import android.view.View.OnClickListener;
+import android.widget.ImageButton;
 import android.widget.ShareActionProvider;
 import android.widget.TextView;
+import android.widget.Toast;
+import es.alexmj.travellist.data.TravelsConstants;
+import es.alexmj.travellist.data.TravelsProvider;
 
 /**
  * Muestra el detalle de los viajes en una pantalla a parte. Desde esta pantalla se puede
@@ -43,13 +48,12 @@ public class TravelActivity extends Activity {
 	private TextView mNote;
 	
 	/**VERSION 5: ActionBar**/
-	private ShareActionProvider mShareActionProvider;	
-	private static TravelsDatabaseHelper dbHelper;
+	private ShareActionProvider mShareActionProvider;
+	private ImageButton locButton;	
 	private static long BUNDLE_ID=0;
 	private static final int REQUEST_CODE_EDIT_TRIP = 1;
-	private static final String[] PROJECTION = {TravelsConstants._ID, TravelsConstants.CITY, 
-		TravelsConstants.COUNTRY, TravelsConstants.YEAR, TravelsConstants.NOTE};
 
+	
 	/**
 	 * Recoge y establece los datos de ciudad, pais, anio y nota,
 	 * que proceden del Intent.
@@ -81,6 +85,7 @@ public class TravelActivity extends Activity {
 		mYear.setText(BUNDLE_YEAR.toString());
 		mNote = (TextView) findViewById(R.id.noteResult);
 		mNote.setText(BUNDLE_NOTE);
+		
 	}// onCreate()
 
 	/**
@@ -111,7 +116,7 @@ public class TravelActivity extends Activity {
 	 * @see android.app.Activity#onCreateOptionsMenu(android.view.Menu)
 	 */
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(final Menu menu) {
 		Log.d(TAG, "onCreateOptionsMenu");
 		getMenuInflater().inflate(R.menu.travel_menu, menu);
 		
@@ -120,8 +125,47 @@ public class TravelActivity extends Activity {
 		mShareActionProvider = (ShareActionProvider) menu.findItem(R.id.menu_share_travel).getActionProvider();
 	    /** Setting a share intent */
         mShareActionProvider.setShareIntent(getDefaultIntent());
- 
 		
+        
+        locButton = (ImageButton) menu.findItem(R.id.menu_delete_travel).getActionView();
+        ((ImageButton) locButton).setImageResource(android.R.drawable.ic_menu_delete);        
+        locButton.setBackgroundColor(Color.TRANSPARENT);
+        locButton.setOnClickListener(new OnClickListener(){
+			@Override
+			public void onClick(View v) {
+				final Integer yearResult4delete = Integer.valueOf(mYear.getText().toString());
+				final String cityResult4delete = mCity.getText().toString();
+				String countryResult4delete = mCountry.getText().toString();
+				
+				AlertDialog.Builder builder = new Builder(TravelActivity.this);
+				builder.setTitle("Borrar viaje");
+				builder.setMessage("Se borrará el viaje a "+cityResult4delete+"("+countryResult4delete+")"+" en "+yearResult4delete+"...");
+				builder.setIcon(android.R.drawable.ic_dialog_alert);
+				builder.setPositiveButton("Borrar", new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						int idDB4delete=(int)BUNDLE_ID;
+						Log.i(TAG, "---idDB4delete: "+ idDB4delete);			
+						Uri uri = Uri.parse(TravelsProvider.CONTENT_URI + "/" + idDB4delete);
+						getContentResolver().delete(uri, null, null);
+						onMenuItemSelected(2, menu.findItem(R.id.menu_delete_travel));
+					}
+				});
+				builder.setNegativeButton("Cancelar", new DialogInterface.OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface dialog, int which) {
+						Toast.makeText(TravelActivity.this, "Borrado cancelado", Toast.LENGTH_SHORT).show();
+					}
+				});
+				
+				AlertDialog dialog = builder.create();
+				dialog.show();				
+			}
+		});
+        
+        
 	    return super.onCreateOptionsMenu(menu);
 	}// onCreateOptionsMenu()
 
@@ -187,13 +231,13 @@ public class TravelActivity extends Activity {
 			return true;
 		case R.id.menu_delete_travel:
 				Log.i(TAG, "Etiqueta: Opcion BORRAR pulsada!");
-			int idDB4delete=(int)BUNDLE_ID;
-				Log.i(TAG, "---idDB4delete: "+ idDB4delete);			
-			Uri uri = Uri.parse(TravelsProvider.CONTENT_URI + "/" + idDB4delete);
-			getContentResolver().delete(uri, null, null);
+				final Integer yearResult4delete = Integer.valueOf(mYear.getText().toString());
+				final String cityResult4delete = mCity.getText().toString();				
+				Toast.makeText(TravelActivity.this, "Borrado viaje a "+cityResult4delete+"("+yearResult4delete+")", Toast.LENGTH_LONG).show();
 			//## Volvemos a la lista de viajes			
 			Intent intentDelete = new Intent(this, TravelListActivity.class);
 			startActivity(intentDelete);
+			
 			return true;			
 /**FIN VERSION 5**/			
 		default:
@@ -230,6 +274,7 @@ public class TravelActivity extends Activity {
 			valuesTripEdited.put(TravelsConstants.NOTE, myNewTripNote);
 			//## Update viaje en el Provider
 			getContentResolver().update(TravelsProvider.CONTENT_URI, valuesTripEdited, TravelsConstants._ID+"="+myNewTripID, null);
+			Toast.makeText(TravelActivity.this, "Viaje a "+myNewTripCity+"("+myNewTripYear+") Guardado", Toast.LENGTH_LONG).show();
 			//## Volvemos a la lista de viajes
 			Intent intent = new Intent(this, TravelListActivity.class);
 			startActivity(intent);
@@ -240,4 +285,5 @@ public class TravelActivity extends Activity {
 
 	}// onActivityResult()
 	
+
 }

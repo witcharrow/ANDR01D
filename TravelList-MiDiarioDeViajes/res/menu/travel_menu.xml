@@ -18,6 +18,8 @@
         android:title="@string/op3Borrar"
         android:icon="@android:drawable/ic_delete"
         android:showAsAction="ifRoom|withText"
+        android:actionViewClass="android.widget.ImageButton"
+        
     />
 
 </menu>

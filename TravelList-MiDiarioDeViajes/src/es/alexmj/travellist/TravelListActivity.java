@@ -24,6 +24,7 @@ import android.widget.AdapterView;
 import android.widget.CursorAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
+import android.widget.Toast;
 import es.alexmj.travellist.data.TravelsConstants;
 import es.alexmj.travellist.data.TravelsDatabaseHelper;
 import es.alexmj.travellist.data.TravelsProvider;
@@ -257,7 +258,7 @@ public class TravelListActivity extends ListActivity {
 			    }
 			    else{
 			    	getContentResolver().insert(TravelsProvider.CONTENT_URI, valuesNewTrip);			    	
-			    }
+			    }			    
 			  }
 			//**************Seccion para edicion de un viaje***********************//	
 			if (requestCode == REQUEST_CODE_EDIT_TRIP) {
@@ -275,6 +276,7 @@ public class TravelListActivity extends ListActivity {
 			ContentResolver cr = getContentResolver();
 			Cursor c = cr.query(TravelsProvider.CONTENT_URI,PROJECTION, null, null, TravelsConstants.YEAR+" DESC");
 	    	mAdapter.changeCursor(c);
+	    	Toast.makeText(TravelListActivity.this, "Guardado viaje a "+myNewTripCity+"("+myNewTripYear+")", Toast.LENGTH_LONG).show();
 		}
 		else {
 			Log.i(TAG, "ACCIÓN CANCELADA " + resultCode + "-" + requestCode);
@@ -390,13 +392,15 @@ public class TravelListActivity extends ListActivity {
 			Log.i(TAG, "info del viaje para editar: " + cityResult4edit + ","
 					+ countryResult4edit + "," + yearResult4edit.toString()
 					+ "," + noteResult4edit + "," + originalTripPosition);
-			startActivityForResult(intent, REQUEST_CODE_EDIT_TRIP);
+			startActivityForResult(intent, REQUEST_CODE_EDIT_TRIP);			
 			return true;
 		case R.id.CtxLblOpc3:
 				Log.i(TAG, "Etiqueta: Opcion 3 pulsada!--BORRAR");
 				Log.i(TAG, "---Nro de viajes antes de BORRAR (DB): "+ dbHelper.getTravelsList().size());
 			TravelInfo myTrip4Delete = dbHelper.getTravelInfo((int) row);
 			int idDB4delete=myTrip4Delete.getIdDB();
+			String cityResult4delete = myTrip4Delete.getCountry();
+			Integer yearResult4delete = myTrip4Delete.getYear();
 				Log.i(TAG, "---idDB4delete: "+ idDB4delete);			
 			Uri uri = Uri.parse(TravelsProvider.CONTENT_URI + "/" + idDB4delete);
 			getContentResolver().delete(uri, null, null);
@@ -405,23 +409,12 @@ public class TravelListActivity extends ListActivity {
 			Cursor c = cr.query(TravelsProvider.CONTENT_URI,PROJECTION, null, null, TravelsConstants.YEAR+" DESC");
 	    	mAdapter.changeCursor(c);				
 				Log.i(TAG, "---Numero de viajes despues de BORRAR (DB): "+ dbHelper.getTravelsList().size());
+			Toast.makeText(TravelListActivity.this, "Borrado viaje a "+cityResult4delete+"("+yearResult4delete+")", Toast.LENGTH_LONG).show();
 			return true;
 		default:
 			return super.onContextItemSelected(item);
 		}
 	}// onContextItemSelected()
 
-//	public boolean onOptionsItemSelected(MenuItem item){
-//		int id= item.getItemId();
-//		switch(id){
-//		case R.menu.travel_list_menu:
-//			Log.e(TAG,"hola feo");
-////			Intent intent = new Intent (this, TravelListActivity.class);
-////			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
-////			startActivity(intent);
-//			return true;
-//		default:
-//			return super.onOptionsItemSelected(item);			
-//		}
-//	}
+	
 }

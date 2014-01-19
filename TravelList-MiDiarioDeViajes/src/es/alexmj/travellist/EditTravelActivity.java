@@ -80,7 +80,7 @@ DatePickerDialog.OnDateSetListener {
 		if (extrasFromTrip4edit != null) {
 			//v4//idDBResult4edit = extrasFromTrip4edit.getInt("TripId");
 			idDBResult4edit = extrasFromTrip4edit.getInt("SavedDataTripID");
-				Log.i(TAG,"%%%%%%%%%%%%%%%%%%%%% idDBResult4edit:"+idDBResult4edit);
+//				Log.i(TAG,"%%%%%%%%%%%%%%%%%%%%% idDBResult4edit:"+idDBResult4edit);
 			String cityResult4edit = extrasFromTrip4edit.getString("SavedDataTripCity");
 			String countryResult4edit = extrasFromTrip4edit.getString("SavedDataTripCountry");
 			yearResult4edit = extrasFromTrip4edit.getInt("SavedDataTripYear");					
@@ -100,7 +100,7 @@ DatePickerDialog.OnDateSetListener {
 						mYear=yearResult4edit;
 					}
 					String idTrip = Integer.valueOf(idDBResult4edit).toString();					
-						Log.i(TAG,"%%%%%%%%%%%%%%%%%%%%% idTrip:"+idTrip);
+//						Log.i(TAG,"%%%%%%%%%%%%%%%%%%%%% idTrip:"+idTrip);
 					String [] resultsTrip={idTrip,
 										   mCity.getText().toString(),
 										   mCountry.getText().toString(),
