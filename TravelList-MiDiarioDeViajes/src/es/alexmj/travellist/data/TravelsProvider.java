@@ -96,7 +96,7 @@ public class TravelsProvider extends ContentProvider {
 			throw new IllegalArgumentException("Unknown URI: " + uri);
 		}		
 		Cursor c = qBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
-		//?? make sure that potential listeners are getting notified
+		//TODO:?? make sure that potential listeners are getting notified
 	    c.setNotificationUri(getContext().getContentResolver(), uri);
 		return c;
 	}// query()
@@ -131,7 +131,8 @@ public class TravelsProvider extends ContentProvider {
 		default:
 			throw new IllegalArgumentException("Unknown URI: " + uri);
 		}
-		getContext().getContentResolver().notifyChange(uri, null);
+		//DEL???getContext().getContentResolver().notifyChange(uri, null);
+		notifyChange(uri);
 		return rowsUpdated;
 	}// update()
 
@@ -165,7 +166,8 @@ public class TravelsProvider extends ContentProvider {
 		default:
 			throw new IllegalArgumentException("Unknown URI: " + uri);
 		}
-		getContext().getContentResolver().notifyChange(uri, null);
+		//DEL??getContext().getContentResolver().notifyChange(uri, null);
+		notifyChange(uri);
 		return rowsDeleted;
 	}
 

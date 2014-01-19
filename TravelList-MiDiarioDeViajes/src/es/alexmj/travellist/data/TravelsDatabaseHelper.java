@@ -200,4 +200,50 @@ public class TravelsDatabaseHelper extends SQLiteOpenHelper {
 	        }
 	    return id;
 	}// getLastId()
+	
+	public TravelInfo getTravelInfo(int idTravel){		
+	    //## openDB();
+	    SQLiteDatabase sqlDB = this.getReadableDatabase();
+	    TravelInfo getTravelInfo;
+	    final String MY_QUERY = "SELECT * FROM "+TABLE_NAME+" WHERE _id = "+idTravel;
+	    Log.d(TAG, "getTravelInfo: "+MY_QUERY);
+	    Cursor mCursor = sqlDB.rawQuery(MY_QUERY, null);  
+//	    try {
+//	          if (mCursor.getCount() > 0) {
+//	            mCursor.moveToFirst();
+//	            myTripInfo = mCursor.getString(columnIndex)(0);//there's only 1 column in cursor since you only get MAX, not dataset
+//	          }
+//	        } catch (Exception e) {
+//	          System.out.println(e.getMessage());
+//	        } finally {
+//	            //## closeDB();
+//	        	sqlDB.close();
+//	        }
+//	    
+	    int idDB = 0;
+		String city = null;
+		String country = null;
+		int year = 0;
+		String note = null;
+	    if (mCursor.moveToFirst()){
+    		int idDBIndex = mCursor.getColumnIndex(TravelsConstants._ID);
+    		int cityIndex = mCursor.getColumnIndex(TravelsConstants.CITY);
+    		int countryIndex = mCursor.getColumnIndex(TravelsConstants.COUNTRY);
+    		int yearIndex = mCursor.getColumnIndex(TravelsConstants.YEAR);
+    		int noteIndex = mCursor.getColumnIndex(TravelsConstants.NOTE);    		
+    		do {
+    			idDB = mCursor.getInt(idDBIndex);
+    			city = mCursor.getString(cityIndex);
+    			country = mCursor.getString(countryIndex);
+    			year = mCursor.getInt(yearIndex);
+    			note = mCursor.getString(noteIndex);
+    				Log.i(TAG,"%%%%%%%%%%%%%%%%%%%%% idDB="+idDB);
+    			    			
+    			    			
+    		} while (mCursor.moveToNext());    		
+    		mCursor.close();
+    	}
+	    TravelInfo travel = new TravelInfo(idDB, city, country, year, note);
+	    return travel;
+	}// getTravelInfo()
 }

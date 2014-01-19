@@ -3,33 +3,31 @@ package es.alexmj.travellist;
 
 import java.util.ArrayList;
 
-import es.alexmj.travellist.data.TravelsConstants;
-import es.alexmj.travellist.data.TravelsDatabaseHelper;
-import es.alexmj.travellist.data.TravelsProvider;
 import android.app.ListActivity;
-//import android.content.ContentResolver;
+import android.content.ContentResolver;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-//import android.support.v4.widget.ResourceCursorAdapter;
-//import android.widget.ResourceCursorAdapter;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
-import android.widget.LinearLayout;
+import android.widget.CursorAdapter;
 import android.widget.ListView;
+import android.widget.ResourceCursorAdapter;
 import android.widget.TextView;
+import es.alexmj.travellist.data.TravelsConstants;
+import es.alexmj.travellist.data.TravelsDatabaseHelper;
+import es.alexmj.travellist.data.TravelsProvider;
 
 /**
  * Muestra las opciones para editar,crear,borrar y compartir un viaje. Pantalla principal
@@ -62,21 +60,22 @@ public class TravelListActivity extends ListActivity {
 	private String result;
 	
 	// ##VERSION 3: Database
-	private static TravelsDatabaseHelper dbHelper;
-	private TravelAdapter adapter;
+	//private static TravelsDatabaseHelper dbHelper;
+	//private TravelAdapter adapter;
 	
 	
 	// ##VERSION 4: TravelsCursorAdapter
+	private static TravelsDatabaseHelper dbHelper;
 	private Uri newTravelUri;
-	//private TravelsCursorAdapter mAdapter;	
-	//private static final String[] PROJECTION = {TravelsConstants._ID, TravelsConstants.CITY, 
-	//TravelsConstants.COUNTRY, TravelsConstants.YEAR, TravelsConstants.NOTE};
+	private TravelsCursorAdapter mAdapter;	
+	private static final String[] PROJECTION = {TravelsConstants._ID, TravelsConstants.CITY, 
+	TravelsConstants.COUNTRY, TravelsConstants.YEAR, TravelsConstants.NOTE};
 
 	/**
 	 * Adapter que contiene la lista con los viajes del diario.
 	 * @author Alejandro.Marijuan
 	 *
-	 */
+	 *
 	private class TravelAdapter extends ArrayAdapter<TravelInfo>{
 		private Context context;
 		private ArrayList<TravelInfo> travels;
@@ -89,7 +88,7 @@ public class TravelListActivity extends ListActivity {
 
 		/* (non-Javadoc)
 		 * @see android.widget.ArrayAdapter#getView(int, android.view.View, android.view.ViewGroup)
-		 */
+		 *
 		@Override
 		public View getView(int position, View convertView, ViewGroup parent) {
 			LinearLayout view;
@@ -112,21 +111,27 @@ public class TravelListActivity extends ListActivity {
 			holder.text2.setText(getResources().getString(R.string.year) + " " + info.getYear());			
 			return view;
 		}// getView()		
-	}
+	}*/
 	
-	/**	
-	final class TravelsCursorAdapter extends ResourceCursorAdapter {
+	/**
+	 * VERSION 4: Adapter que contiene la lista con los viajes del diario.
+	 * @author Alejandro.Marijuan
+	 *
+	 */
+	final class TravelsCursorAdapter extends CursorAdapter {
 
+		private static final String TAG = "TravelsCursorAdapter: --->";
 		private LayoutInflater mInflater;
 		
 		public TravelsCursorAdapter(Context context, Cursor c) {
-			super(context, android.R.layout.simple_list_item_2, c, 0);
+			super(context, c, 0);
 			mInflater=LayoutInflater.from(context);
 		}
 
 		public View newView (Context context, Cursor cursor, ViewGroup parent){
+			Log.d(TAG, "newView");
 			//## En el metodo newView creamos la vista y el holder y lo almacenamos en el tag
-			View view = mInflater.inflate(android.R.layout.simple_list_item_2, parent);
+			View view = mInflater.inflate(android.R.layout.simple_list_item_2, parent,false);
 			ViewHolder holder = new ViewHolder();
 			TextView textView1 = (TextView) view.findViewById(android.R.id.text1);
 			TextView textView2 = (TextView) view.findViewById(android.R.id.text2);
@@ -135,18 +140,22 @@ public class TravelListActivity extends ListActivity {
 			view.setTag(holder);
 			return view;
 			
-		}
+		}// newView()
+		
 		@Override
 		public void bindView(View v, Context context, Cursor c) {
+			Log.d(TAG, "bindView");
 			//## En el metodo bindView recuperamos el Holder y asignamos los datos a las vistas
 			ViewHolder holder = (ViewHolder) v.getTag();
+			String id = c.getString(c.getColumnIndex(TravelsConstants._ID));
 			String city = c.getString(c.getColumnIndex(TravelsConstants.CITY));
 			String country = " ("+c.getString(c.getColumnIndex(TravelsConstants.COUNTRY))+")";
 			String year = "Año "+c.getInt(c.getColumnIndex(TravelsConstants.YEAR));
+			Log.d(TAG,"("+id+")"+city+","+country+","+year);
 			holder.text1.setText(city+country);
 			holder.text2.setText(year);		
-		}
-	}*/
+		}// bindView()
+	}
 	
 	/**
 	 * Vista para cada elemento de la lista.
@@ -169,21 +178,28 @@ public class TravelListActivity extends ListActivity {
     	Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);        
         dbHelper = new TravelsDatabaseHelper(this);
-	    // ## Obtenemos los datos de la base de datos -- VERSION 4 sin adapter
-        ArrayList<TravelInfo> values = getTravelsList();
-		//## Creamos el adapter y lo asociamos a la activity
+//        TODO: LIST???
+//        setContentView(R.layout.list_view);
+//        list = (ListView) findViewById(android.R.id.list);
+		
+/**VERSION 3
+ 	    // ## Obtenemos los datos de la base de datos -- VERSION 4 sin adapter
+        ArrayList<TravelInfo> values = getTravelsList();        
+        //## Creamos el adapter y lo asociamos a la activity
 		adapter = new TravelAdapter(this, values);
 		setListAdapter(adapter);
-		
-/**VERSION 4: TravelsCursorAdapter
- 		        
+**/
+        /**VERSION 4: TravelsCursorAdapter*/ 		        
         ContentResolver cr = getContentResolver();        
         //## Hacemos la consulta
-        Cursor c = cr.query(TravelsProvider.CONTENT_URI,PROJECTION, null, null, TravelsConstants.YEAR+" DESC");
+        //DEL?//Cursor c = cr.query(TravelsProvider.CONTENT_URI,PROJECTION, null, null, TravelsConstants.YEAR+" DESC");
+        Cursor c = cr.query(TravelsProvider.CONTENT_URI,PROJECTION, null, null, null);
         //## y Construimos el Adapter con el cursor                
         mAdapter = new TravelsCursorAdapter(this,c);
         setListAdapter(mAdapter);
-**/        
+        //TODO: LIST??
+//        list.setAdapter(mAdapter);
+    
         // ## Para devolver el resultado a la EditTravelActivity
 		Intent returnIntent = new Intent();
 		returnIntent.putExtra("result", result);
@@ -228,7 +244,35 @@ public class TravelListActivity extends ListActivity {
 	protected void onListItemClick(ListView l, View v, int position, long id) {
 		Log.d(TAG, "onListItemClick");
 		//## Tomamos la informacion del viaje seleccionado
+/**VERSION 3
 		TravelInfo info = adapter.getItem(position);
+**/
+		
+/**
+		ContentResolver cr = getContentResolver();
+    	Cursor c = cr.query(TravelsProvider.CONTENT_URI,PROJECTION, null, null, null);
+		
+		int idDB = 0;
+		if (c.moveToFirst()){
+    		int idDBIndex = c.getColumnIndex(TravelsConstants._ID);
+    		int count=0;
+    		do {
+    			
+//    			if (c.getCount() > 0 && c.getCount()==position){
+    				idDB = c.getInt(idDBIndex);
+    				Log.w(TAG,"%%%%%%%%%%%%%%%%%%%%% count="+count);
+    				Log.w(TAG,"%%%%%%%%%%%%%%%%%%%%% idDB recogido al hacer clic sobre el adapter="+idDB);
+    				count++;
+//    			}    				
+    		} while (c.moveToNext());    		
+    		
+    	}
+		c.close();
+**/		
+		long row = mAdapter.getItemId(position);
+		TravelInfo info = dbHelper.getTravelInfo((int) row);
+		
+		//&&TravelInfo info = dbHelper.getTravelInfo(position+1);		
 		//## Creamos el Intent para lanzar la Activity TravelActivity
 		Intent intent = new Intent(this, TravelActivity.class);
 		//## Aniadimos como extras los datos que consideremos necesarios para la
@@ -268,8 +312,10 @@ public class TravelListActivity extends ListActivity {
 			String myNewTripCountry = resultsTrip[2];
 			int myNewTripYear = Integer.valueOf(resultsTrip[3]);
 			String myNewTripNote = resultsTrip[4];
+/**VERSION 3
 			TravelInfo myNewTripInfo = new TravelInfo(myNewTripID,myNewTripCity,
-					myNewTripCountry, myNewTripYear, myNewTripNote);			
+					myNewTripCountry, myNewTripYear, myNewTripNote);
+*/			
 			if(newTripToAdd){
 				Log.i(TAG, "Añadimos al adapter la info del viaje");
 			    ContentValues valuesNewTrip = new ContentValues();
@@ -282,7 +328,23 @@ public class TravelListActivity extends ListActivity {
 			    if (newTravelUri == null) {
 			      //## Nuevo viaje
 			    	newTravelUri = getContentResolver().insert(TravelsProvider.CONTENT_URI, valuesNewTrip);
+					
+			    	//## VERSION 4: Cambiamos el ResourceCursorAdapter por CursorAdapter para poder actualizar el adapter.
+					ContentResolver cr = getContentResolver();
+			    	Cursor c = cr.query(TravelsProvider.CONTENT_URI,PROJECTION, null, null, null);
+			    	mAdapter.changeCursor(c);
+			    	
+//			    	mAdapter.getCursor();
+//			    	adapter.getCursor().requery();
+//			    	ContentResolver cr = getContentResolver();
+//			    	changeCursor(cr);
+			    	
+//			    	Cursor c = cr.query(TravelsProvider.CONTENT_URI,PROJECTION, null, null, null);
+//			    	mAdapter = new TravelsCursorAdapter(this,c);
+//			        setListAdapter(mAdapter);
+/**VERSION 3
 			    	adapter.add(myNewTripInfo);
+**/
 			    }
 			  }
 			//**************Seccion para edicion de un viaje***********************//	
@@ -297,10 +359,17 @@ public class TravelListActivity extends ListActivity {
 				valuesTripEdited.put(TravelsConstants.NOTE, myNewTripNote);
 				//## Update viaje en el Provider
 				getContentResolver().update(TravelsProvider.CONTENT_URI, valuesTripEdited, TravelsConstants._ID+"="+myNewTripID, null);
+				
+				//## VERSION 4: Cambiamos el ResourceCursorAdapter por CursorAdapter para poder actualizar el adapter.
+				ContentResolver cr = getContentResolver();
+		    	Cursor c = cr.query(TravelsProvider.CONTENT_URI,PROJECTION, null, null, null);
+		    	mAdapter.changeCursor(c);
+/**VERSION 3
 				//## Obtenemos los datos del resto de viajes
 				ArrayList<TravelInfo> listOfTravels = getTravelsList();
  				adapter = new TravelAdapter(this, listOfTravels);        
 				setListAdapter(adapter);
+**/
 			}
 		}
 		else {
@@ -379,7 +448,10 @@ public class TravelListActivity extends ListActivity {
 			//## Creamos el Intent para lanzar la Activity que permita compartir el viaje
 			Intent sendIntent = new Intent();
 			sendIntent.setAction(Intent.ACTION_SEND);
+/**VERSION 3
 			TravelInfo myTrip = dbHelper.getTravelsList().get((int)row);
+**/
+			TravelInfo myTrip = dbHelper.getTravelInfo((int) row);
 			// ## Obtenemos los datos para incluirlos en el intent.			
 			String cityResult = myTrip.getCity();
 			String countryResult = myTrip.getCountry();
@@ -401,7 +473,10 @@ public class TravelListActivity extends ListActivity {
 			Log.i(TAG, "Etiqueta: Opcion 2 pulsada!--EDITAR");
 			//## Creamos el Intent para lanzar la Activity EditTravelActivity
 			Intent intent = new Intent(this, EditTravelActivity.class);
-			TravelInfo myTrip4Edit = dbHelper.getTravelsList().get((int)row);			
+/**VERSION 3
+			TravelInfo myTrip4Edit = dbHelper.getTravelsList().get((int)row);
+**/
+			TravelInfo myTrip4Edit = dbHelper.getTravelInfo((int) row);
 			// ## Obtenemos los datos para incluirlos en el Intent
 			int idDB4edit = myTrip4Edit.getIdDB();
 			String cityResult4edit = myTrip4Edit.getCity();
@@ -424,14 +499,26 @@ public class TravelListActivity extends ListActivity {
 		case R.id.CtxLblOpc3:
 				Log.i(TAG, "Etiqueta: Opcion 3 pulsada!--BORRAR");
 				Log.i(TAG, "---Nro de viajes antes de BORRAR (DB): "+ dbHelper.getTravelsList().size());
+/**VERSION 3
 			TravelInfo myTrip4Delete = dbHelper.getTravelsList().get((int)row);
+**/
+			TravelInfo myTrip4Delete = dbHelper.getTravelInfo((int) row);
 			int idDB4delete=myTrip4Delete.getIdDB();
 				Log.i(TAG, "---idDB4delete: "+ idDB4delete);			
 			Uri uri = Uri.parse(TravelsProvider.CONTENT_URI + "/" + idDB4delete);
 			getContentResolver().delete(uri, null, null);
+			
+			//## VERSION 4: Cambiamos el ResourceCursorAdapter por CursorAdapter para poder actualizar el adapter.
+			ContentResolver cr = getContentResolver();
+	    	Cursor c = cr.query(TravelsProvider.CONTENT_URI,PROJECTION, null, null, null);
+	    	mAdapter.changeCursor(c);
+
+/**VERSION 3
 			adapter.remove(adapter.getItem((int) row));
-			setListAdapter(adapter);
-				Log.i(TAG, "---ADAPTER despues de BORRAR en adapter: "+ adapter.getCount());			
+			setListAdapter(adapter);			
+				Log.i(TAG, "---ADAPTER despues de BORRAR en adapter: "+ adapter.getCount());
+**/				
+				
 				Log.i(TAG, "---Numero de viajes despues de BORRAR (DB): "+ dbHelper.getTravelsList().size());
 			return true;
 		default:
