@@ -3,7 +3,21 @@
   
     <item android:id="@+id/menu_share_travel"
         android:title="@string/menu_share_travel"
-        android:orderInCategory="100"
-        android:showAsAction="never" />
+        android:orderInCategory="100"        
+        android:showAsAction="ifRoom|withText"
+        android:actionProviderClass="android.widget.ShareActionProvider"
+    />
+    
+    <item android:id="@+id/menu_edit_travel"
+        android:title="@string/op2Editar"
+        android:icon="@android:drawable/ic_menu_edit"
+        android:showAsAction="ifRoom|withText"
+    />
+    
+    <item android:id="@+id/menu_delete_travel"
+        android:title="@string/op3Borrar"
+        android:icon="@android:drawable/ic_delete"
+        android:showAsAction="ifRoom|withText"
+    />
 
 </menu>

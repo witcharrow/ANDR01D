@@ -46,6 +46,7 @@ import es.alexmj.travellist.data.TravelsProvider;
  * 			aniade una base de datos que gestiona el almacenamiento de viajes.
  * VERSION 4: Aniadimos un provider para trabajar con la base de datos. Se aniade control por
  * 			  id de cada viaje.
+ * VERSION 5: inclusion de la Action Bar para sustituir el boton de menu de opciones.
  * 
  * @author Alejandro.Marijuan@googlemail.com
  * 
@@ -169,7 +170,7 @@ public class TravelListActivity extends ListActivity {
 	}// onCreateOptionsMenu()
 
 	/**
-	 * Lanza un Intent para crear un nuevo viaje.
+	 * Lanza un Intent para crear un nuevo viaje a EditTravelActivity.
 	 * @see android.app.Activity#onMenuItemSelected(int, android.view.MenuItem)
 	 */
 	@Override
@@ -199,10 +200,14 @@ public class TravelListActivity extends ListActivity {
 		Intent intent = new Intent(this, TravelActivity.class);
 		//## Aniadimos como extras los datos que consideremos necesarios para la
 		//## Activity a lanzar
+		
+		intent.putExtra(TravelInfo.EXTRA_ID, row);
 		intent.putExtra(TravelInfo.EXTRA_CITY, info.getCity());
 		intent.putExtra(TravelInfo.EXTRA_COUNTRY, info.getCountry());
 		intent.putExtra(TravelInfo.EXTRA_YEAR, info.getYear());
 		intent.putExtra(TravelInfo.EXTRA_NOTE, info.getNote());
+			Log.w(TAG,"("+row+")"+info.getCity()+","+info.getCountry()+",("+info.getYear()+"),"+  info.getNote() );
+			
 		//## Lanzamos la Activity con el Intent creado a TravelActivity
 		startActivity(intent);
 		super.onListItemClick(l, v, position, id);
@@ -405,4 +410,18 @@ public class TravelListActivity extends ListActivity {
 			return super.onContextItemSelected(item);
 		}
 	}// onContextItemSelected()
+
+//	public boolean onOptionsItemSelected(MenuItem item){
+//		int id= item.getItemId();
+//		switch(id){
+//		case R.menu.travel_list_menu:
+//			Log.e(TAG,"hola feo");
+////			Intent intent = new Intent (this, TravelListActivity.class);
+////			intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+////			startActivity(intent);
+//			return true;
+//		default:
+//			return super.onOptionsItemSelected(item);			
+//		}
+//	}
 }

@@ -23,6 +23,8 @@ public class TravelInfo {
 	private String country;
 	private int year;
 	private String note;
+	/**VERSION 5**/
+	public static final String EXTRA_ID="extra_id";
 	
 	
 	/**
