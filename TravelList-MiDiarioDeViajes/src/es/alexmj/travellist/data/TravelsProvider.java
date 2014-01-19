@@ -79,7 +79,7 @@ public class TravelsProvider extends ContentProvider {
 		int match = mUriMatcher.match(uri);		
 		SQLiteQueryBuilder qBuilder = new SQLiteQueryBuilder();
 		
-		//?? check if the caller has requested a column which does not exists
+		//## Comprueba si la columna que llamamos no existe.
 	    checkColumns(projection);
 		
 		qBuilder.setTables(TravelsDatabaseHelper.TABLE_NAME);		
@@ -96,7 +96,7 @@ public class TravelsProvider extends ContentProvider {
 			throw new IllegalArgumentException("Unknown URI: " + uri);
 		}		
 		Cursor c = qBuilder.query(db, projection, selection, selectionArgs, null, null, sortOrder);
-		//TODO:?? make sure that potential listeners are getting notified
+		//## Actualizamos listeners por notificacion.
 	    c.setNotificationUri(getContext().getContentResolver(), uri);
 		return c;
 	}// query()
@@ -131,7 +131,6 @@ public class TravelsProvider extends ContentProvider {
 		default:
 			throw new IllegalArgumentException("Unknown URI: " + uri);
 		}
-		//DEL???getContext().getContentResolver().notifyChange(uri, null);
 		notifyChange(uri);
 		return rowsUpdated;
 	}// update()
@@ -166,7 +165,6 @@ public class TravelsProvider extends ContentProvider {
 		default:
 			throw new IllegalArgumentException("Unknown URI: " + uri);
 		}
-		//DEL??getContext().getContentResolver().notifyChange(uri, null);
 		notifyChange(uri);
 		return rowsDeleted;
 	}
@@ -199,11 +197,10 @@ public class TravelsProvider extends ContentProvider {
 		Log.d(TAG, "notifyChange");
         getContext().getContentResolver().notifyChange(uri, null);
 	}// notifyChange()
-
-	
 	
 	/**
-	 * @param projection
+	 * Comprueba si la columna que llamamos no existe.
+	 * @param projection para obtener las columnas
 	 */
 	private void checkColumns(String[] projection) {
 		Log.d(TAG, "checkColumns");
@@ -215,13 +212,11 @@ public class TravelsProvider extends ContentProvider {
 					Arrays.asList(projection));
 			HashSet<String> availableColumns = new HashSet<String>(
 					Arrays.asList(available));
-			// check if all columns which are requested are available
+			//## Comprueba si todas las columnas solicitadas estan disponibles
 			if (!availableColumns.containsAll(requestedColumns)) {
 				throw new IllegalArgumentException(
 						"Unknown columns in projection");
 			}
 		}
 	}// checkColumns()	
-	
-
 }
